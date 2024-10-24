@@ -1,0 +1,33 @@
+[package]
+name = "pallets-api"
+version = "0.1.0"
+edition.workspace = true
+
+[dependencies]
+log = "0.4.14"
+anyhow = "1.0"
+sp-core = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
+sp-runtime = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
+sp-keyring = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
+subxt = { git = "https://github.com/boolnetwork/subxt.git", branch = "Bool_Polkadot" }
+bool-telemetry-client = { git = "https://github.com/boolnetwork/bool-telemetry-client", branch = "main"}
+codec = { package = "parity-scale-codec", version = "3.2.2", features = ["derive", "full"] }
+jsonrpsee-types = "0.2.0"
+tokio = { version = "1.27.0", features = ["macros"] }
+url = { version = "^2.2", features = ["serde"] }
+hex-literal = "0.3.1"
+serde = { version = "1.0.195", default-features = false, features = ["alloc", "derive"] }
+serde_json = "1.0"
+scale-info = { version = "2.0", features = ["derive", "serde", "decode"] }
+libsecp256k1 = { version = "0.3.2", default-features = false }
+
+# local dependencies
+bnk-node-primitives = { git = "https://github.com/boolnetwork/bnk-common" }
+bnk-chain-bridge = { git = "https://github.com/boolnetwork/bnk-common" }
+precompile-utils-local = { workspace = true, features = ["std"] }
+
+# extra dependencies
+ethereum = { version = "0.14.0", features = ["with-codec"]}
+
+[dev-dependencies]
+env_logger = "0.9"
