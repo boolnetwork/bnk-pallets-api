@@ -1,4 +1,4 @@
-use precompile_utils_local::data::EvmDataWriter;
+use precompile_utils::solidity::codec::Writer as EvmDataWriter;
 use sp_core::{H160, H256, U256, Encode};
 use crate::no_prefix;
 use crate::BoolSubClient;

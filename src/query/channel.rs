@@ -3,7 +3,7 @@ use crate::bool::runtime_types::pallet_channel::pallet::{
     TxMessage, Channel, SourceTXInfo, BtcTxTunnel, BtcCmtType, TaprootPair, RefreshRecord,
     XudtInfo, XudtIssueRecord, UidRecord, CommitteeFeeConfig,
 };
-use crate::bool::runtime_types::bnk_node_primitives::AccountId20;
+use crate::bool::runtime_types::node_primitives::AccountId20;
 use crate::BoolSubClient;
 
 pub async fn tx_messages(

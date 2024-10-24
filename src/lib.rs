@@ -1,3 +1,4 @@
+#![deny(unused_crate_dependencies)]
 pub mod client;
 pub mod event_watcher;
 pub mod monitor_rpc;
@@ -8,7 +9,7 @@ pub mod watcher_rpc;
 
 pub use crate::client::BoolConfig;
 use bnk_node_primitives::CustomError;
-pub use node_primitives;
+pub use bnk_node_primitives;
 pub use subxt::constants::Address;
 pub use subxt::events::StaticEvent;
 pub use subxt::tx::{BoolSigner, SecretKey};

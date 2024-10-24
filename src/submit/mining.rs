@@ -21,7 +21,7 @@ pub async fn report_standby(
 
 pub async fn register_device(
     client: &BoolSubClient,
-    owner: crate::bool::runtime_types::bnk_node_primitives::AccountId20,
+    owner: crate::bool::runtime_types::node_primitives::AccountId20,
     report: Vec<u8>,
     version: u16,
     signature: Vec<u8>,

@@ -14,7 +14,7 @@ use crate::submit::ethereum::transact_unsigned;
 use crate::BoolSubClient;
 use crate::no_prefix;
 use sp_core::{H160, H256};
-use precompile_utils_local::data::EvmDataWriter;
+use precompile_utils::solidity::codec::Writer as EvmDataWriter;
 
 /// keccak_256("reportResult(bytes[],bytes[],uint256,uint256,bytes32,bytes[])".as_bytes())[..4]
 pub const REPORT_RESULT_SELECTOR: [u8; 4] = [81, 88, 250, 234];
@@ -36,7 +36,7 @@ pub async fn call_register_v2(
     owner_bytes.copy_from_slice(&owner);
     match register_device(
         sub_client,
-        crate::bool::runtime_types::bnk_node_primitives::AccountId20(owner_bytes),
+        crate::bool::runtime_types::node_primitives::AccountId20(owner_bytes),
         report,
         version,
         signature,
