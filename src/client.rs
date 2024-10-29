@@ -599,7 +599,7 @@ async fn test_nonce_roll_back() {
     let signer = BoolSigner::new(sk);
     let client = BoolSubClient::new_from_signer(&url, Some(signer), None, Some(20)).await.unwrap();
     let account = AccountId20::from_str("0x89Bdaf4AC10bC9d497BCa9a5cc37972026146E0E").unwrap();
-    let dst = crate::bool::runtime_types::node_primitives::AccountId20(account.0);
+    let dst = crate::bool::runtime_types::fp_account::AccountId20(account.0);
 
     for i in 0..200 {
         log::info!("index: {i}");

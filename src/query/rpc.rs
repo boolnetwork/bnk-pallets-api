@@ -1,4 +1,4 @@
-use crate::bool::runtime_types::node_primitives::AccountId20 as RuntimeAccountId20;
+use crate::bool::runtime_types::fp_account::AccountId20 as RuntimeAccountId20;
 use crate::bool::runtime_types::pallet_rpc::pallet::DeviceInfo;
 use crate::BoolSubClient;
 use sp_core::H256 as Hash;

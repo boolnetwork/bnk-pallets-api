@@ -13,18 +13,6 @@ pub async fn report_health(
     })
 }
 
-pub async fn report_concensus_evil(
-    client: &BoolSubClient,
-    device_id: Vec<u8>,
-    sig: Vec<u8>,
-    evils: Vec<u16>,
-) -> Result<Hash, String> {
-    let call = crate::bool::tx().committee_health().report_concensus_evil(device_id, sig, evils);
-    client.submit_extrinsic_without_signer(call).await.map_err(|e| {
-        handle_custom_error(e)
-    })
-}
-
 pub async fn report_state_vote(
     client: &BoolSubClient,
     device_id: Vec<u8>,

@@ -1,6 +1,6 @@
 use crate::bool::runtime_types::{
     primitive_types::U256,
-    node_primitives::AccountId20,
+    fp_account::AccountId20,
     pallet_facility::pallet::DIdentity,
     pallet_mining::pallet::DeviceInfo,
 };

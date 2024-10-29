@@ -36,7 +36,7 @@ pub async fn call_register_v2(
     owner_bytes.copy_from_slice(&owner);
     match register_device(
         sub_client,
-        crate::bool::runtime_types::node_primitives::AccountId20(owner_bytes),
+        crate::bool::runtime_types::fp_account::AccountId20(owner_bytes),
         report,
         version,
         signature,
