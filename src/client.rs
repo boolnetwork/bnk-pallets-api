@@ -578,7 +578,7 @@ async fn test_query_cmt() {
 #[tokio::test]
 async fn test_query_btc_committee_type_iter() {
     let url = "ws://127.0.0.1:9933".to_string();
-    let client = crate::client::SubClient::new_from_signer(&url, None, None).await.unwrap();
+    let client = crate::client::SubClient::new_from_signer(&url, None, None, None).await.unwrap();
     let res = crate::query::channel::btc_committee_type_iter(&client, 300, None).await.unwrap();
     println!("res: {res:?}");
     let res = crate::query::channel::committee_mapping_tick_iter(&client, 300, None).await.unwrap();
