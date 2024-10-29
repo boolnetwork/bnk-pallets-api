@@ -42,6 +42,44 @@ pub async fn register_device(
     }
 }
 
+pub async fn register_device_with_ident(
+    client: &BoolSubClient,
+    owner: crate::bool::runtime_types::node_primitives::AccountId20,
+    report: Vec<u8>,
+    version: u16,
+    identity: Vec<u8>,
+    monitor_type: Vec<u8>,
+    signature: Vec<u8>,
+) -> Result<Hash, String> {
+    let call = crate::bool::tx().mining().register_device_with_ident(
+        owner,
+        report,
+        version,
+        identity,
+        monitor_type,
+        signature
+    );
+    let tx_process = client
+        .submit_extrinsic_without_signer_and_watch(call)
+        .await
+        .map_err(|e| e.to_string())?;
+    match tx_process.wait_for_finalized().await {
+        Ok(tx) => Ok(tx.wait_for_success().await.map_err(|e| e.to_string())?.extrinsic_hash()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+pub async fn report_monitor_sync_delay(
+    client: &BoolSubClient,
+    id: Vec<u8>,
+    // (chain_id, expected, sync)
+    block_delay: Vec<(u32, u32, u32)>,
+    signature: Vec<u8>,
+) -> Result<Hash, String> {
+    let call = crate::bool::tx().mining().report_monitor_sync_delay(id, block_delay, signature);
+    client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
+}
+
 pub async fn update_votes(
     client: &BoolSubClient,
     changed_votes: Vec<(Vec<u8>, u128)>,

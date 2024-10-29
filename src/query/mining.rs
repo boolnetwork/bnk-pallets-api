@@ -58,6 +58,24 @@ pub async fn device_info_v2(
     sub_client.query_storage(storage_query, at_block).await.map_err(|e| anyhow!("{e:?}"))
 }
 
+pub async fn device_identity_map(
+    sub_client: &BoolSubClient,
+    id: Vec<u8>,
+    at_block: Option<Hash>,
+) -> Result<Option<Vec<u8>>> {
+    let storage_query = crate::bool::storage().mining().device_identity_map(id);
+    sub_client.query_storage(storage_query, at_block).await.map_err(|e| anyhow!("{e:?}"))
+}
+
+pub async fn device_monitor_type(
+    sub_client: &BoolSubClient,
+    id: Vec<u8>,
+    at_block: Option<Hash>,
+) -> Result<Option<Vec<u8>>> {
+    let storage_query = crate::bool::storage().mining().device_monitor_type(id);
+    sub_client.query_storage(storage_query, at_block).await.map_err(|e| anyhow!("{e:?}"))
+}
+
 pub async fn device_votes_for_current_epoch(
     sub_client: &BoolSubClient,
     id: Vec<u8>,
