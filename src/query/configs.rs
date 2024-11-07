@@ -36,3 +36,12 @@ pub async fn monitor_delay_tolerance_iter(
                 .collect()
         })
 }
+
+pub async fn device_url_map(
+    sub_client: &BoolSubClient,
+    id: Vec<u8>,
+    at_block: Option<Hash>,
+) -> Result<Option<Vec<u8>>, subxt::Error> {
+    let storage_query = crate::bool::storage().configs().device_url_map(id);
+    sub_client.query_storage(storage_query, at_block).await
+}

@@ -56,6 +56,13 @@ pub enum CommitteeHealthEvent {
 #[derive(Debug, PartialEq)]
 pub enum ConfigsEvent {
     SetRoundMsgWait,
+    ConfigUpdate,
+    Unknown,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum RpcEvent {
+    DeviceRegistered,
     Unknown,
 }
 
@@ -141,6 +148,7 @@ impl std::str::FromStr for ConfigsEvent {
     fn from_str(input: &str) -> Result<ConfigsEvent, Self::Err> {
         match input {
             "SetRoundMsgWait" => Ok(ConfigsEvent::SetRoundMsgWait),
+            "ConfigUpdate" => Ok(ConfigsEvent::ConfigUpdate),
             _ => Ok(ConfigsEvent::Unknown),
         }
     }
@@ -197,6 +205,16 @@ impl std::str::FromStr for OracleEvent {
             "Brc20OracleRequest" => Ok(OracleEvent::Brc20OracleRequest),
             "Brc20OracleSignResult" => Ok(OracleEvent::Brc20OracleSignResult),
             _ => Ok(OracleEvent::Unknown),
+        }
+    }
+}
+
+impl std::str::FromStr for RpcEvent {
+    type Err = ();
+    fn from_str(input: &str) -> Result<RpcEvent, Self::Err> {
+        match input {
+            "DeviceRegistered" => Ok(RpcEvent::DeviceRegistered),
+            _ => Ok(RpcEvent::Unknown),
         }
     }
 }

@@ -49,13 +49,28 @@ pub async fn working_devices(
         .map_err(|e| anyhow!("{e:?}"))
 }
 
-pub async fn device_info_v2(
+pub async fn device_info(
     sub_client: &BoolSubClient,
     id: Vec<u8>,
     at_block: Option<Hash>,
 ) -> Result<Option<DeviceInfo<AccountId20, u32, u128>>> {
     let storage_query = crate::bool::storage().mining().devices(id.clone());
     sub_client.query_storage(storage_query, at_block).await.map_err(|e| anyhow!("{e:?}"))
+}
+
+pub async fn device_info_iter(
+    sub_client: &BoolSubClient,
+    at_block: Option<Hash>,
+) -> Result<Vec<DeviceInfo<AccountId20, u32, u128>>> {
+    let storage_query = crate::bool::storage().mining().devices_root();
+    sub_client.query_storage_value_iter(storage_query, 300, at_block)
+        .await
+        .map(|res| {
+            res.into_iter()
+                .map(|v| v.1)
+                .collect()
+        })
+        .map_err(|e| anyhow!("{e:?}"))
 }
 
 pub async fn device_identity_map(
