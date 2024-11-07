@@ -1,5 +1,5 @@
 use crate::bool::runtime_types::fp_account::AccountId20;
-use crate::bool::runtime_types::pallet_committee::pallet::{Committee, GlobalConfig};
+use crate::bool::runtime_types::pallet_committee::types::{Committee, GlobalConfig};
 use crate::BoolSubClient;
 use anyhow::anyhow;
 use sp_core::H256 as Hash;
@@ -30,17 +30,6 @@ pub async fn next_epoch_config(
     let store = crate::bool::storage().committee().next_epoch_config();
     sub_client
         .query_storage(store, at_block)
-        .await
-        .map_err(|e| anyhow!("{e:?}"))
-}
-
-pub async fn pool_rate(
-    sub_client: &BoolSubClient,
-    at_block: Option<Hash>,
-) -> anyhow::Result<u8> {
-    let store = crate::bool::storage().committee().pool_rate();
-    sub_client
-        .query_storage_or_default(store, at_block)
         .await
         .map_err(|e| anyhow!("{e:?}"))
 }
@@ -220,67 +209,6 @@ pub async fn rewards_for_fork(
         }
         Err(e) => {
             log::error!(target: "pallets_api", "query rewards failed for cid: {}, epoch: {}, fork_id: {}, for: {:?}", cid, epoch, fork_id, e);
-            return None;
-        }
-    }
-}
-
-pub async fn all_concerned_brc20(
-    sub_client: &BoolSubClient,
-    at_block: Option<Hash>,
-) -> Option<Vec<Vec<u8>>> {
-    let store = crate::bool::storage().committee().all_concerned_brc20();
-    match sub_client.query_storage(store, at_block).await {
-        Ok(res) => {
-            if res.is_none() {
-                log::warn!(target: "pallets_api", "query none brc20 list");
-            }
-            res
-        }
-        Err(e) => {
-            log::error!(target: "pallets_api", "query brc20 list failed for {:?}", e);
-            return None;
-        }
-    }
-}
-
-pub async fn brc20_decimals(
-    sub_client: &BoolSubClient,
-    tick: Vec<u8>,
-    at_block: Option<Hash>,
-) -> Option<u8> {
-    let store = crate::bool::storage().committee().brc20_decimals(tick);
-    match sub_client.query_storage(store, at_block).await {
-        Ok(res) => {
-            if res.is_none() {
-                log::warn!(target: "pallets_api", "query none brc20 decimal");
-            }
-            res
-        }
-        Err(e) => {
-            log::error!(target: "pallets_api", "query brc20 decimal failed for {:?}", e);
-            return None;
-        }
-    }
-}
-
-pub async fn committee_assets_consensus(
-    sub_client: &BoolSubClient,
-    cid: u32,
-    at_block: Option<Hash>,
-) -> Option<(Vec<u16>, u64, Vec<u8>)> {
-    let store = crate::bool::storage()
-        .committee()
-        .committee_assets_consensus(cid);
-    match sub_client.query_storage(store, at_block).await {
-        Ok(res) => {
-            if res.is_none() {
-                log::warn!(target: "pallets_api", "query none committee asset consensus");
-            }
-            res
-        }
-        Err(e) => {
-            log::error!(target: "pallets_api", "query committee asset consensus failed for {:?}", e);
             return None;
         }
     }

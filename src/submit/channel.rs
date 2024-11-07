@@ -1,6 +1,6 @@
 use anyhow::Result;
 use sp_core::H256 as Hash;
-use crate::bool::runtime_types::pallet_channel::pallet::{ConfirmType, HandleConnection, TxSource, CmtType, TaprootType, XudtStatus};
+use crate::bool::runtime_types::pallet_channel::types::{HandleConnection, TxSource, CmtType, TaprootType, XudtStatus};
 use crate::{BoolSubClient, handle_custom_error};
 
 pub async fn create_channel(
@@ -33,7 +33,7 @@ pub async fn submit_transaction(
     need_watch_res: bool,
     nonce: Option<u32>,
 ) -> Result<Hash, String> {
-    let call = crate::bool::tx().channel().submit_transaction(channel_id, cid, msg, source);
+    let call = crate::bool::tx().channel().import_new_tx(channel_id, cid, msg, source);
     if need_watch_res {
         client.submit_extrinsic_with_signer_and_watch(call, nonce).await.map_err(|e| e.to_string())
     } else {
@@ -50,26 +50,12 @@ pub async fn import_new_src_hash(
     need_watch_res: bool,
     nonce: Option<u32>,
 ) -> Result<Hash, String> {
-    let call = crate::bool::tx().channel().handle_hash(cid, hash, src_chain_id, uid);
+    let call = crate::bool::tx().channel().import_new_source_hash(cid, hash, src_chain_id, uid);
     if need_watch_res {
         client.submit_extrinsic_with_signer_and_watch(call, nonce).await.map_err(|e| e.to_string())
     } else {
         client.submit_extrinsic_with_signer_without_watch(call, nonce).await.map_err(|e| e.to_string())
     }
-}
-
-pub async fn report_evil(
-    client: &BoolSubClient,
-    cid: u32,
-    pk: Vec<u8>,
-    fork_id: u8,
-    epoch: u32,
-    sig: Vec<u8>,
-    target_pk: Vec<u8>,
-    hash: Hash,
-) -> Result<Hash, String> {
-    let call = crate::bool::tx().channel().report_evil(cid, epoch, fork_id, pk, sig, target_pk, hash);
-    client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
 }
 
 pub async fn report_result(
@@ -81,7 +67,7 @@ pub async fn report_result(
     hash: Hash,
     signature: Vec<u8>,
 ) -> Result<Hash, String> {
-    let call = crate::bool::tx().channel().report_result(pk, sig, cid, fork_id, hash, signature);
+    let call = crate::bool::tx().channel().submit_tx_sign_result(pk, sig, cid, fork_id, hash, signature);
     client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
 }
 
@@ -93,18 +79,6 @@ pub async fn request_sign(
 ) -> Result<Hash, String> {
     let call = crate::bool::tx().channel().request_sign(cid, hash);
     client.submit_extrinsic_with_signer_and_watch(call, nonce).await.map_err(|e| e.to_string())
-}
-
-pub async fn confirmed_result(
-    client: &BoolSubClient,
-    cid: u32,
-    hash: Vec<u8>,
-    confirmed: bool,
-    confirm_type: ConfirmType,
-    sig: Vec<u8>,
-) -> Result<Hash, String> {
-    let call = crate::bool::tx().channel().confirmed_result(cid, hash, confirmed, confirm_type, sig);
-    client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
 }
 
 pub async fn sync_status(

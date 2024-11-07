@@ -2,7 +2,7 @@ use crate::bool::runtime_types::{
     primitive_types::U256,
     fp_account::AccountId20,
     pallet_facility::pallet::DIdentity,
-    pallet_mining::pallet::DeviceInfo,
+    pallet_mining::types::DeviceInfo,
 };
 use crate::BoolSubClient;
 use anyhow::{anyhow, Result};
@@ -45,7 +45,7 @@ pub async fn working_devices(
     let store = crate::bool::storage().mining().working_devices(session);
     sub_client.query_storage(store, at_block)
         .await
-        .map(|res| res.and_then(|data| Some((data.0, session))))
+        .map(|res| res.and_then(|data| Some((data, session))))
         .map_err(|e| anyhow!("{e:?}"))
 }
 

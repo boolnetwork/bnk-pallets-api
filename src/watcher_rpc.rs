@@ -4,22 +4,22 @@
 use codec::Encode;
 use crate::bool::runtime_types::{
     pallet_facility::pallet::DIdentity,
-    pallet_mining::pallet::{OnChainPayload, Purpose},
+    pallet_mining::types::{OnChainPayload, Purpose},
     ethereum::transaction::{EIP1559Transaction, TransactionV2 as Transaction, TransactionAction},
 };
 use crate::query::mining::{working_devices, challenges};
 use crate::query::ethereum::evm_chain_id;
-use crate::submit::mining::{im_online, register_device};
+use crate::submit::mining::{im_online, register_device_with_ident};
 use crate::submit::ethereum::transact_unsigned;
 use crate::BoolSubClient;
 use crate::no_prefix;
 use sp_core::{H160, H256};
 use precompile_utils::solidity::codec::Writer as EvmDataWriter;
 
-/// keccak_256("reportResult(bytes[],bytes[],uint256,uint256,bytes32,bytes[])".as_bytes())[..4]
-pub const REPORT_RESULT_SELECTOR: [u8; 4] = [81, 88, 250, 234];
-/// keccak_256("submitTransaction(uint256,uint256,bytes[],uint256,bytes[],bytes[],bytes[],uint256)".as_bytes())[..4]
-pub const SUBMIT_TRANSACTION_SELECTOR: [u8; 4] = [71, 68, 182, 32];
+/// keccak_256("submitTxSignResult(bytes[],bytes[],uint256,uint256,bytes32,bytes[])".as_bytes())[..4]
+pub const REPORT_RESULT_SELECTOR: [u8; 4] = [0, 83, 125, 66];
+/// keccak_256("importNewTx(uint256,uint256,bytes[],uint256,bytes[],bytes[],bytes[],uint256)".as_bytes())[..4]
+pub const SUBMIT_TRANSACTION_SELECTOR: [u8; 4] = [137, 84, 190, 92];
 /// keccak_256("joinOrExitServiceUnsigned(bytes[],uint256,bytes[],bytes[])".as_bytes())[..4]
 pub const JOIN_OR_EXIT_SERVICE_UNSIGNED_SELECTOR: [u8; 4] = [167, 247, 205, 137];
 
@@ -28,17 +28,21 @@ pub async fn call_register_v2(
     config_owner: &str,
     did: (u16, Vec<u8>),
     report: Vec<u8>,
+    identity: Vec<u8>,
+    monitor_type: Vec<u8>,
     signature: Vec<u8>,
 ) -> Result<String, String> {
     let (version, _pk) = did;
     let owner = hex::decode(no_prefix(config_owner)).map_err(|e| e.to_string())?;
     let mut owner_bytes = [0u8; 20];
     owner_bytes.copy_from_slice(&owner);
-    match register_device(
+    match register_device_with_ident(
         sub_client,
         crate::bool::runtime_types::fp_account::AccountId20(owner_bytes),
         report,
         version,
+        identity,
+        monitor_type,
         signature,
     ).await {
         Ok(hash) => Ok("0x".to_string() + &hex::encode(hash.0)),

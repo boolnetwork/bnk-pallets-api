@@ -3,7 +3,7 @@ use sp_core::{H160, H256, U256, Encode};
 use crate::no_prefix;
 use crate::BoolSubClient;
 use crate::types::{ExtrinsicData, NeedSignedExtrinsic};
-use crate::bool::runtime_types::pallet_channel::pallet::{TxSource, TxMessage};
+use crate::bool::runtime_types::pallet_channel::types::{TxSource, TxMessage};
 use crate::query::channel::tx_messages;
 use crate::query::ethereum::evm_chain_id;
 use crate::submit::channel::submit_transaction;

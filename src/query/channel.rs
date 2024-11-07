@@ -1,5 +1,5 @@
 use sp_core::H256 as Hash;
-use crate::bool::runtime_types::pallet_channel::pallet::{
+use crate::bool::runtime_types::pallet_channel::types::{
     TxMessage, Channel, SourceTXInfo, BtcTxTunnel, BtcCmtType, TaprootPair, RefreshRecord,
     XudtInfo, XudtIssueRecord, UidRecord, CommitteeFeeConfig,
 };
