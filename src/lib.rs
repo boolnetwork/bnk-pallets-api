@@ -14,6 +14,7 @@ pub use subxt::constants::Address;
 pub use subxt::events::StaticEvent;
 pub use subxt::tx::{BoolSigner, SecretKey};
 pub use subxt::{error::RpcError, events::EventDetails, subxt, Error, JsonRpseeError, config::polkadot::PolkadotExtrinsicParamsBuilder};
+pub use subxt::ext::subxt_core::utils::AccountId20;
 
 /// use subxt cli to update metadata 'subxt metadata --url http://127.0.0.1:9944 --version 14 -f bytes > metadata.scale'
 #[subxt::subxt(
