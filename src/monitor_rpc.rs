@@ -76,7 +76,7 @@ pub async fn submit_extrinsic_by_evm(
                     chain_nonce
                 } else {
                     // Some errors occurred. ie. some tx with nonce not submit to chain seccessfully.
-                    if *inner_nonce - chain_nonce >= sub_client.cache_size_for_call {
+                    if *inner_nonce - chain_nonce >= sub_client.cache_size_for_call as u64 {
                         log::warn!(target: "subxt", "Some errors occurred to nonce inner {}, chain {}", *inner_nonce, chain_nonce);
                         for key in chain_nonce ..*inner_nonce {
                             if let Some((inner_call, by_evm, input, tip)) = call_cache.get_mut(&key) {
@@ -87,12 +87,11 @@ pub async fn submit_extrinsic_by_evm(
                                     let evm_call = crate::bool::tx().ethereum().transact(evm_tx);
                                     client.tx().create_unsigned(&evm_call).map_err(|e| e.to_string())?
                                 } else {
-                                    client.tx().create_signed_with_nonce(
+                                    client.tx().create_signed(
                                         inner_call,
                                         signer,
-                                        key,
-                                        crate::BaseExtrinsicParamsBuilder::new().tip(*tip + 100)
-                                    ).map_err(|e| e.to_string())?
+                                        crate::PolkadotExtrinsicParamsBuilder::new().nonce(key).tip(*tip + 100).build(),
+                                    ).await.map_err(|e| e.to_string())?
                                 };
                                 let tx_hash = tx
                                     .submit()

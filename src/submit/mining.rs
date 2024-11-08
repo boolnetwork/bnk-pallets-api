@@ -1,5 +1,6 @@
 use anyhow::Result;
 use sp_core::H256 as Hash;
+use subxt::ext::subxt_core::utils::AccountId20;
 use crate::{BoolSubClient, handle_custom_error};
 use crate::bool::runtime_types::pallet_mining::types::OnChainPayload;
 
@@ -21,7 +22,7 @@ pub async fn report_standby(
 
 pub async fn register_device_with_ident(
     client: &BoolSubClient,
-    owner: crate::bool::runtime_types::fp_account::AccountId20,
+    owner: AccountId20,
     report: Vec<u8>,
     version: u16,
     identity: Vec<u8>,

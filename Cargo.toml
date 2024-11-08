@@ -8,7 +8,7 @@ log = "0.4.14"
 anyhow = "1.0"
 sp-core = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
 sp-runtime = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
-subxt = { git = "https://github.com/boolnetwork/subxt.git", branch = "Bool_Polkadot" }
+subxt = { git = "https://github.com/boolnetwork/subxt.git", branch = "v0.37.0", features = ["jsonrpsee", "native", "substrate-compat", "unstable-light-client"]}
 bool-telemetry-client = { git = "https://github.com/boolnetwork/bool-telemetry-client", branch = "main"}
 codec = { package = "parity-scale-codec", version = "3.2.2", features = ["derive", "full"] }
 tokio = { version = "1.27.0", features = ["macros"] }

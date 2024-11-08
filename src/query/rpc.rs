@@ -1,13 +1,13 @@
-use crate::bool::runtime_types::fp_account::AccountId20 as RuntimeAccountId20;
 use crate::bool::runtime_types::pallet_rpc::pallet::DeviceInfo;
 use crate::BoolSubClient;
 use sp_core::H256 as Hash;
+use subxt::ext::subxt_core::utils::AccountId20;
 
 pub async fn device_info_rpc(
     sub_client: &BoolSubClient,
     id: Vec<u8>,
     at_block: Option<Hash>,
-) -> Option<DeviceInfo<RuntimeAccountId20, u32>> {
+) -> Option<DeviceInfo<AccountId20, u32>> {
     let storage_query = crate::bool::storage().rpc().devices(id.clone());
     match sub_client.query_storage(storage_query, at_block).await {
         Ok(res) => {

@@ -1,12 +1,12 @@
 use crate::bool::runtime_types::{
     primitive_types::U256,
-    fp_account::AccountId20,
     pallet_facility::pallet::DIdentity,
     pallet_mining::types::DeviceInfo,
 };
 use crate::BoolSubClient;
 use anyhow::{anyhow, Result};
 use sp_core::H256 as Hash;
+use subxt::ext::subxt_core::utils::AccountId20;
 
 pub async fn challenges(
     sub_client: &BoolSubClient,
@@ -62,8 +62,8 @@ pub async fn device_info_iter(
     sub_client: &BoolSubClient,
     at_block: Option<Hash>,
 ) -> Result<Vec<DeviceInfo<AccountId20, u32, u128>>> {
-    let storage_query = crate::bool::storage().mining().devices_root();
-    sub_client.query_storage_value_iter(storage_query, 300, at_block)
+    let storage_query = crate::bool::storage().mining().devices_iter();
+    sub_client.query_storage_value_iter(storage_query, at_block)
         .await
         .map(|res| {
             res.into_iter()

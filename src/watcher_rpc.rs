@@ -15,6 +15,7 @@ use crate::BoolSubClient;
 use crate::no_prefix;
 use sp_core::{H160, H256};
 use precompile_utils::solidity::codec::Writer as EvmDataWriter;
+use subxt::ext::subxt_core::utils::AccountId20;
 
 /// keccak_256("submitTxSignResult(bytes[],bytes[],uint256,uint256,bytes32,bytes[])".as_bytes())[..4]
 pub const REPORT_RESULT_SELECTOR: [u8; 4] = [0, 83, 125, 66];
@@ -38,7 +39,7 @@ pub async fn call_register_v2(
     owner_bytes.copy_from_slice(&owner);
     match register_device_with_ident(
         sub_client,
-        crate::bool::runtime_types::fp_account::AccountId20(owner_bytes),
+        AccountId20(owner_bytes),
         report,
         version,
         identity,
@@ -248,7 +249,7 @@ pub async fn query_current_block_number(sub_client: &BoolSubClient) -> Result<u3
 
 #[cfg(test)]
 mod tests {
-    use crate::bool::runtime_types::primitive_types::U256;
+    use crate::bool::runtime_types::{pallet_channel::types::TxSource, primitive_types::U256};
     use sp_core::hashing;
     use super::*;
 

@@ -1,8 +1,8 @@
-use crate::bool::runtime_types::fp_account::AccountId20;
 use crate::bool::runtime_types::pallet_committee::types::{Committee, GlobalConfig};
 use crate::BoolSubClient;
 use anyhow::anyhow;
 use sp_core::H256 as Hash;
+use subxt::ext::subxt_core::utils::AccountId20;
 
 pub async fn global_epoch(sub_client: &BoolSubClient, at_block: Option<Hash>) -> anyhow::Result<u64> {
     let store = crate::bool::storage().committee().global_epoch();
@@ -56,12 +56,11 @@ pub async fn committees(
 
 pub async fn committees_iter(
     sub_client: &BoolSubClient,
-    page_size: u32,
     at_block: Option<Hash>,
 ) -> Result<Vec<Committee<AccountId20, u32>>, subxt::Error> {
-    let store = crate::bool::storage().committee().committees_root();
+    let store = crate::bool::storage().committee().committees_iter();
     sub_client
-        .query_storage_value_iter(store, page_size, at_block)
+        .query_storage_value_iter(store, at_block)
         .await
         .map(|res| {
             res.into_iter()
@@ -115,16 +114,15 @@ pub async fn member_links(
 
 pub async fn member_links_iter(
     sub_client: &BoolSubClient,
-    page_size: u32,
     at_block: Option<Hash>,
 ) -> Result<Vec<(Vec<u8>, u32)>, subxt::Error> {
-    let store = crate::bool::storage().committee().member_links_root();
+    let store = crate::bool::storage().committee().member_links_iter();
     sub_client
-        .query_storage_value_iter(store, page_size, at_block)
+        .query_storage_value_iter(store, at_block)
         .await
         .map(|res| {
             res.into_iter()
-                .map(|(k, v)| (k.0[49..].to_vec(), v))
+                .map(|(k, v)| (k[49..].to_vec(), v))
                 .collect()
         })
 }

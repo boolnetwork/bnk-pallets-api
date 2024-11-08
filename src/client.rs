@@ -10,18 +10,16 @@ use subxt::config::{
     substrate::{BlakeTwo256, SubstrateHeader},
 };
 use subxt::{
-    OnlineClient, Config, tx::{TxPayload, TxProgress, SecretKey, BoolSigner}, JsonRpseeError,
-    Error, error::RpcError, storage::{address::Yes, StorageAddress, StorageKey},
+    OnlineClient, Config, tx::{BoolSigner, Payload as TxPayload, TxProgress, SecretKey, Signer}, JsonRpseeError,
+    Error, error::RpcError, storage::{Address as StorageAddress}, ext::subxt_core::{utils::Yes, constants::address::Address as ConstantAddress},
+    lightclient::{ChainConfig, LightClient}, config::polkadot::PolkadotExtrinsicParamsBuilder,
 };
-use subxt::config::extrinsic_params::BaseExtrinsicParamsBuilder;
-use subxt::tx::Signer;
 use crate::bool::runtime_types::ethereum::transaction::{EIP1559Transaction, TransactionV2 as EvmTransaction, TransactionAction};
 
 #[derive(Clone, Debug)]
 pub enum BoolConfig {}
 
 impl Config for BoolConfig {
-    type Index = u32;
     type Hash = Hash;
     type AccountId = bnk_node_primitives::AccountId20;
     type Address = sp_runtime::MultiAddress<bnk_node_primitives::AccountId20, ()>;
@@ -29,6 +27,7 @@ impl Config for BoolConfig {
     type Hasher = BlakeTwo256;
     type Header = SubstrateHeader<u32, BlakeTwo256>;
     type ExtrinsicParams = PolkadotExtrinsicParams<Self>;
+    type AssetId = ();
 }
 
 #[derive(Clone)]
@@ -36,11 +35,11 @@ pub struct SubClient<C: Config, P: Signer<C> + Clone> {
     pub ws_url: String,
     pub signer: Option<P>,
     pub client: Arc<RwLock<OnlineClient<C>>>,
-    pub inner_nonce: Arc<RwLock<u32>>,
+    pub inner_nonce: Arc<RwLock<u64>>,
     // number of cache, will re-submit call if 'call_cache' length up to it.
     pub cache_size_for_call: u32,
     // call cache with target nonce, ture value for 'bool' param means the tx is submitted by evm, 'Vec<u8>' is input for evm tx, 'u128' is tx tip for priority.
-    pub call_cache: Arc<RwLock<HashMap<u32, (Box<dyn TxPayload + Send + Sync>, bool, Vec<u8>, u128)>>>,
+    pub call_cache: Arc<RwLock<HashMap<u64, (Box<dyn TxPayload + Send + Sync>, bool, Vec<u8>, u128)>>>,
     // milliseconds, default 10000 milllis(10 seconds)
     pub warn_time: u128,
 }
@@ -57,7 +56,7 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
             ws_url: url.to_string(),
             signer: Some(signer),
             client: Arc::new(RwLock::new(subxt_client)),
-            inner_nonce: Arc::new(RwLock::new(chain_nonce as u32)),
+            inner_nonce: Arc::new(RwLock::new(chain_nonce)),
             cache_size_for_call: cache_size_for_call.unwrap_or(10),
             call_cache: Arc::new(RwLock::new(HashMap::new())),
             warn_time: warn_time.unwrap_or(10000),
@@ -67,7 +66,7 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
 
     pub async fn new_from_ecdsa_sk(url: String, sk: Option<String>, warn_time: Option<u128>, cache_size_for_call: Option<u32>) -> Result<SubClient<BoolConfig, BoolSigner<BoolConfig>>, String> {
         let mut chain_nonce = 0;
-        let subxt_client = OnlineClient::<BoolConfig>::from_url(&url).await.map_err(|e| e.to_string())?;
+        let subxt_client = OnlineClient::<BoolConfig>::from_insecure_url(&url).await.map_err(|e| e.to_string())?;
         let signer = if let Some(sk) = sk {
             let sk = hex::decode(sk.strip_prefix("0x").unwrap_or(&sk)).map_err(|e| e.to_string())?;
             let signer = BoolSigner::new(SecretKey::parse_slice(&sk).map_err(|e| e.to_string())?);
@@ -80,7 +79,33 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
             ws_url: url,
             signer,
             client: Arc::new(RwLock::new(subxt_client)),
-            inner_nonce: Arc::new(RwLock::new(chain_nonce as u32)),
+            inner_nonce: Arc::new(RwLock::new(chain_nonce)),
+            cache_size_for_call: cache_size_for_call.unwrap_or(10),
+            call_cache: Arc::new(RwLock::new(HashMap::new())),
+            warn_time: warn_time.unwrap_or(10000),
+        })
+    }
+
+    pub async fn new_light_client(_chain_spec: &str, node_ws_url: Option<String>, sk: Option<String>, warn_time: Option<u128>, cache_size_for_call: Option<u32>) -> Result<SubClient<BoolConfig, BoolSigner<BoolConfig>>, String> {
+        use subxt::utils::fetch_chainspec_from_rpc_node;
+        let chain_spec = fetch_chainspec_from_rpc_node(&node_ws_url.clone().unwrap()).await.map_err(|e| e.to_string())?;
+        // println!("chain_spec json: {:?}", chain_spec.get());
+        // let chain_config = ChainConfig::chain_spec(chain_spec);
+        let chain_config = ChainConfig::chain_spec(chain_spec.get());
+        let (_light_client, chain_rpc) = LightClient::relay_chain(chain_config).map_err(|e| e.to_string())?;
+        let subxt_client = OnlineClient::<BoolConfig>::from_rpc_client(chain_rpc).await.map_err(|e| e.to_string())?;
+        let signer = if let Some(sk) = sk {
+            let sk = hex::decode(sk.strip_prefix("0x").unwrap_or(&sk)).map_err(|e| e.to_string()).map_err(|e| e.to_string())?;
+            let signer = BoolSigner::new(SecretKey::parse_slice(&sk).map_err(|e| e.to_string())?);
+            Some(signer)
+        } else {
+            None
+        };
+        Ok(SubClient {
+            ws_url: node_ws_url.unwrap(),
+            signer,
+            client: Arc::new(RwLock::new(subxt_client)),
+            inner_nonce: Arc::new(RwLock::new(0)),
             cache_size_for_call: cache_size_for_call.unwrap_or(10),
             call_cache: Arc::new(RwLock::new(HashMap::new())),
             warn_time: warn_time.unwrap_or(10000),
@@ -105,9 +130,9 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
         let account_id = signer.account_id();
 
         let target_nonce = if let Some(nonce) = nonce {
-            nonce
+            nonce  as u64
         } else {
-            let chain_nonce = client.tx().account_nonce(account_id).await? as u32;
+            let chain_nonce = client.tx().account_nonce(account_id).await? as u64;
             // clear cache for lower nonce, retain 10 nonce due to 'chain_nonce' can roll back
             let oldest_nonce = std::cmp::max(chain_nonce, 10);
             let old_nonce = call_cache.keys().filter(|v| v < &&(oldest_nonce - 10)).cloned().collect::<Vec<_>>();
@@ -119,19 +144,18 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
                 chain_nonce
             } else {
                 // Some errors occurred. ie. some tx with nonce not submit to chain seccessfully.
-                if *inner_nonce - chain_nonce > self.cache_size_for_call {
+                if *inner_nonce - chain_nonce > self.cache_size_for_call as u64 {
                     log::warn!(target: "subxt", "Some errors occurred to nonce inner {}, chain {}", *inner_nonce, chain_nonce);
                     for key in chain_nonce..*inner_nonce {
                         if let Some((inner_call, by_evm, _, _)) = call_cache.get(&key) {
                             let tx = if *by_evm {
                                 client.tx().create_unsigned(inner_call)?
                             } else {
-                                client.tx().create_signed_with_nonce(
+                                client.tx().create_signed(
                                     inner_call,
                                     signer,
-                                    key,
-                                    Default::default()
-                                )?
+                                    PolkadotExtrinsicParamsBuilder::new().nonce(key).build(),
+                                ).await?
                             };
                             let tx_hash = tx
                                 .submit()
@@ -145,16 +169,15 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
                 *inner_nonce
             }
         };
-        let tx: subxt::tx::SubmittableExtrinsic<BoolConfig, OnlineClient<BoolConfig>> = client.tx().create_signed_with_nonce(
+        let tx: subxt::tx::SubmittableExtrinsic<BoolConfig, OnlineClient<BoolConfig>> = client.tx().create_signed(
             &call,
             signer,
-            target_nonce,
-            Default::default(),
-        )?;
+            PolkadotExtrinsicParamsBuilder::new().nonce(target_nonce).build(),
+        ).await?;
         let tx_hash = match tx
             .submit_and_watch()
             .await?
-            .wait_for_in_block()
+            .wait_for_finalized()
             .await
         {
             Ok(tx) => {
@@ -190,9 +213,9 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
         let account_id = signer.account_id();
 
         let target_nonce = if let Some(nonce) = nonce {
-            nonce
+            nonce as u64
         } else {
-            let chain_nonce = client.tx().account_nonce(account_id).await? as u32;
+            let chain_nonce = client.tx().account_nonce(account_id).await? as u64;
             // clear cache for lower nonce
             let old_nonce = call_cache.keys().filter(|v| v < &&chain_nonce).cloned().collect::<Vec<_>>();
             for key in old_nonce {
@@ -203,7 +226,7 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
                 chain_nonce
             } else {
                 // Some errors occurred. ie. some tx with nonce not submit to chain seccessfully.
-                if *inner_nonce - chain_nonce >= self.cache_size_for_call {
+                if *inner_nonce - chain_nonce >= self.cache_size_for_call as u64 {
                     log::warn!(target: "subxt", "Some errors occurred to nonce inner {}, chain {}", *inner_nonce, chain_nonce);
                     for key in chain_nonce ..*inner_nonce {
                         if let Some((inner_call, by_evm, input, tip)) = call_cache.get_mut(&key) {
@@ -214,12 +237,11 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
                                 let evm_call = crate::bool::tx().ethereum().transact(evm_tx);
                                 client.tx().create_unsigned(&evm_call)?
                             } else {
-                                client.tx().create_signed_with_nonce(
+                                client.tx().create_signed(
                                     inner_call,
                                     signer,
-                                    key,
-                                    BaseExtrinsicParamsBuilder::new().tip(*tip + 100),
-                                )?
+                                    PolkadotExtrinsicParamsBuilder::new().nonce(key).tip(*tip + 100).build(),
+                                ).await?
                             };
                             let tx_hash = tx
                                 .submit()
@@ -235,12 +257,11 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
                 *inner_nonce
             }
         };
-        let tx = client.tx().create_signed_with_nonce(
+        let tx = client.tx().create_signed(
             &call,
             signer,
-            target_nonce,
-            Default::default(),
-        )?;
+            PolkadotExtrinsicParamsBuilder::new().nonce(target_nonce).build(),
+        ).await?;
         let tx_hash = match tx
             .submit()
             .await
@@ -290,7 +311,7 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
         tx_process
     }
 
-    pub async fn query_storage<F: StorageAddress<IsFetchable = Yes>>(
+    pub async fn query_storage<F: StorageAddress<IsFetchable = Yes> + 'static + Sized>(
         &self,
         store_query: F,
         at_block: Option<Hash>,
@@ -312,26 +333,25 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
         res
     }
 
-    pub async fn query_storage_value_iter<F: StorageAddress<IsIterable = Yes> + 'static>(
+    pub async fn query_storage_value_iter<F: StorageAddress<IsIterable = Yes> + 'static + Sized>(
         &self,
         store_query: F,
-        page_sise: u32,
         at_block: Option<Hash>,
-    ) -> Result<Vec<(StorageKey, F::Target)>, Error> {
+    ) -> Result<Vec<(Vec<u8>, F::Target)>, Error> {
         let timer = Instant::now();
         self.check_client_runtime_version_and_update().await?;
         let storage_client = self.client.read().await.storage();
         let mut iter = match at_block {
             Some(block) => {
-                storage_client.at(block).iter(store_query, page_sise).await?
+                storage_client.at(block).iter(store_query).await?
             },
             None => {
-                storage_client.at_latest().await?.iter(store_query, page_sise).await?
+                storage_client.at_latest().await?.iter(store_query).await?
             }
         };
         let mut values = Vec::new();
-        while let Some((key, value)) = iter.next().await? {
-            values.push((key, value))
+        while let Some(Ok(kv)) = iter.next().await {
+            values.push((kv.key_bytes.clone(), kv.value))
         }
         if timer.elapsed().as_millis() > self.warn_time {
             log::warn!(target: "subxt", "query_storage exceed warn_time: {} millis", timer.elapsed().as_millis());
@@ -339,7 +359,7 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
         Ok(values)
     }
 
-    pub async fn query_storage_or_default<F: StorageAddress<IsFetchable = Yes, IsDefaultable = Yes>>(
+    pub async fn query_storage_or_default<F: StorageAddress<IsFetchable = Yes, IsDefaultable = Yes> + 'static + Sized>(
         &self,
         store_query: F,
         at_block: Option<Hash>,
@@ -361,7 +381,7 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
         res
     }
 
-    pub async fn query_constant<Address: subxt::constants::ConstantAddress>(
+    pub async fn query_constant<Address: ConstantAddress>(
         &self,
         address: Address,
     ) -> Result<Address::Target, Error> {
@@ -375,7 +395,7 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
         res
     }
 
-    pub async fn query_account_nonce(&self) -> Option<u32> {
+    pub async fn query_account_nonce(&self) -> Option<u64> {
         let timer =   Instant::now();
         self.check_client_runtime_version_and_update().await.ok()?;
         let res = match self.client.read().await.tx().account_nonce(&self.account_id().await).await {
@@ -471,7 +491,7 @@ impl<C: Config, P: Signer<C> + Clone> SubClient<C, P> {
     pub async fn check_client_runtime_version_and_update(&self) -> Result<(), Error> {
         let timer =   Instant::now();
         let client = self.client.read().await;
-        let res = match client.rpc().runtime_version(None).await {
+        let res = match client.backend().current_runtime_version().await {
             Ok(runtime_version) => if runtime_version != client.runtime_version() {
                 log::warn!(target: "subxt", "invalid runtime version, try to rebuild client...");
                 drop(client);
@@ -492,19 +512,21 @@ impl<C: Config, P: Signer<C> + Clone> SubClient<C, P> {
     }
 
     pub async fn rebuild_client(&self) -> Result<(), Error> {
-        let timer =   Instant::now();
-        let res = match OnlineClient::<C>::from_url(&self.ws_url).await {
-            Ok(client) => {
-                *self.client.write().await = client;
-                log::info!(target: "subxt", "rebuild client successful");
-                Ok(())
-            }
-            Err(e) => Err(e)
-        };
+        use subxt::utils::fetch_chainspec_from_rpc_node;
+
+        let timer = Instant::now();
+        let chain_spec = fetch_chainspec_from_rpc_node(&self.ws_url).await.map_err(|e| e.to_string())?;
+        // println!("chain_spec json: {:?}", chain_spec.get());
+        // let chain_config = ChainConfig::chain_spec(chain_spec);
+        let chain_config = ChainConfig::chain_spec(chain_spec.get());
+        let (_light_client, chain_rpc) = LightClient::relay_chain(chain_config).map_err(|e| e.to_string())?;
+        let client = OnlineClient::<C>::from_rpc_client(chain_rpc).await.map_err(|e| e.to_string())?;
+        *self.client.write().await = client;
+        log::info!(target: "subxt", "rebuild client successful");
         if timer.elapsed().as_millis() > self.warn_time {
             log::warn!(target: "subxt", "rebuild_client exceed warn_time: {} millis", timer.elapsed().as_millis());
         }
-        res
+        Ok(())
     }
 
     pub async fn handle_error(&self, err: Error) -> Result<(), Error> {
@@ -560,7 +582,7 @@ async fn test_rebuild_client() {
 async fn test_query_iter() {
     let url = "wss://test-rpc-node-ws.bool.network".to_string();
     let client = crate::client::SubClient::new_from_signer(&url, None, None, None).await.unwrap();
-    let res = crate::query::committee::committees_iter(&client, 300, None).await.unwrap();
+    let res = crate::query::committee::committees_iter(&client, None).await.unwrap();
     println!("res: {res:?}");
 }
 
@@ -579,15 +601,14 @@ async fn test_query_cmt() {
 async fn test_query_btc_committee_type_iter() {
     let url = "ws://127.0.0.1:9933".to_string();
     let client = crate::client::SubClient::new_from_signer(&url, None, None, None).await.unwrap();
-    let res = crate::query::channel::btc_committee_type_iter(&client, 300, None).await.unwrap();
+    let res = crate::query::channel::btc_committee_type_iter(&client, None).await.unwrap();
     println!("res: {res:?}");
-    let res = crate::query::channel::committee_mapping_tick_iter(&client, 300, None).await.unwrap();
-    println!("res: {res:?}");
-    println!("hex: {:?}", hex::encode([240, 159, 165, 154]));
 }
 
 #[tokio::test]
 async fn test_nonce_roll_back() {
+    use subxt::ext::subxt_core::utils::AccountId20;
+
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
     use std::str::FromStr;
@@ -599,13 +620,38 @@ async fn test_nonce_roll_back() {
     let signer = BoolSigner::new(sk);
     let client = BoolSubClient::new_from_signer(&url, Some(signer), None, Some(20)).await.unwrap();
     let account = AccountId20::from_str("0x89Bdaf4AC10bC9d497BCa9a5cc37972026146E0E").unwrap();
-    let dst = crate::bool::runtime_types::fp_account::AccountId20(account.0);
+    let dst = AccountId20(account.0);
 
     for i in 0..200 {
         log::info!("index: {i}");
-        let call = crate::bool::tx().balances().transfer_keep_alive(dst.clone().into(), 100000);
+        let call = crate::bool::tx().balances().transfer_keep_alive(dst.into(), 100000);
         let res = client.submit_extrinsic_with_signer_without_watch(call, None).await.map_err(|e| e.to_string());
         log::info!("submit res: {res:?}");
+    }
+}
+
+#[tokio::test]
+async fn test_light_client() {
+    std::env::set_var("RUST_LOG", "info");
+    env_logger::init();
+
+    // let chain_spec = include_str!("../../node/res/local.json");
+    let light_client = crate::client::SubClient::new_light_client(
+        "", Some("ws://127.0.0.1:9933".to_string()), None, None, None
+    ).await.unwrap();
+    println!("light_client build");
+
+    let storage_client = light_client.client.read().await.storage();
+
+    loop {
+        let storage_query1 = crate::bool::storage().system().number();
+        let latest_height = storage_client.at_latest().await.unwrap().fetch(&storage_query1).await.unwrap().unwrap() - 1;
+
+
+        let storage_query2 = crate::bool::storage().system().block_hash(latest_height);
+        let latest_hash = storage_client.at_latest().await.unwrap().fetch(&storage_query2).await.unwrap().unwrap();
+        println!("*************latest_height: {:?}, ****************latest_hash: {:?}", latest_height, latest_hash);
+        tokio::time::sleep(std::time::Duration::from_secs(2)).await;
     }
 }
 

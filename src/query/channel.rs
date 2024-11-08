@@ -1,9 +1,9 @@
 use sp_core::H256 as Hash;
+use subxt::ext::subxt_core::utils::AccountId20;
 use crate::bool::runtime_types::pallet_channel::types::{
     TxMessage, Channel, SourceTXInfo, BtcTxTunnel, BtcCmtType, TaprootPair, RefreshRecord,
     XudtInfo, XudtIssueRecord, UidRecord, CommitteeFeeConfig,
 };
-use crate::bool::runtime_types::fp_account::AccountId20;
 use crate::BoolSubClient;
 
 pub async fn tx_messages(
@@ -132,12 +132,11 @@ pub async fn btc_committee_type(
 
 pub async fn btc_committee_type_iter(
     sub_client: &BoolSubClient,
-    page_size: u32,
     at_block: Option<Hash>,
 ) -> Result<Vec<BtcCmtType>, subxt::Error> {
-    let store = crate::bool::storage().channel().btc_committee_type_root();
+    let store = crate::bool::storage().channel().btc_committee_type_iter();
     sub_client
-        .query_storage_value_iter(store, page_size, at_block)
+        .query_storage_value_iter(store, at_block)
         .await
         .map(|res| {
             res.into_iter()
@@ -164,12 +163,11 @@ pub async fn escape_taproot(sub_client: &BoolSubClient, cid: u32, at_block: Opti
 
 pub async fn escape_taproot_iter(
     sub_client: &BoolSubClient,
-    page_size: u32,
     at_block: Option<Hash>,
 ) -> Result<Vec<TaprootPair>, subxt::Error> {
-    let store = crate::bool::storage().channel().escape_taproots_root();
+    let store = crate::bool::storage().channel().escape_taproots_iter();
     sub_client
-        .query_storage_value_iter(store, page_size, at_block)
+        .query_storage_value_iter(store, at_block)
         .await
         .map(|res| {
             res.into_iter()
@@ -272,19 +270,18 @@ pub async fn committee_fee_data(
 
 pub async fn committee_fee_data_iter(
     sub_client: &BoolSubClient,
-    page_size: u32,
     at_block: Option<Hash>,
 ) -> Result<Vec<(u32, CommitteeFeeConfig)>, subxt::Error> {
-    let store = crate::bool::storage().channel().committee_fee_data_root();
+    let store = crate::bool::storage().channel().committee_fee_data_iter();
     sub_client
-        .query_storage_value_iter(store, page_size, at_block)
+        .query_storage_value_iter(store, at_block)
         .await
         .map(|res| {
             res
                 .into_iter()
                 .map(|(key, value)| {
                     let mut cid_bytes = [0u8; 4];
-                    cid_bytes.copy_from_slice(&key.0[48..]);
+                    cid_bytes.copy_from_slice(&key[48..]);
                     (u32::from_le_bytes(cid_bytes), value)
                 })
                 .collect()
@@ -293,19 +290,18 @@ pub async fn committee_fee_data_iter(
 
 pub async fn channel_mapping_tick_iter(
     sub_client: &BoolSubClient,
-    page_size: u32,
     at_block: Option<Hash>,
 ) -> Result<Vec<(u32, Vec<(Vec<u8>, Vec<u8>)>)>, subxt::Error> {
-    let store = crate::bool::storage().channel().channel_mapping_tick_root();
+    let store = crate::bool::storage().channel().channel_mapping_tick_iter();
     sub_client
-        .query_storage_value_iter(store, page_size, at_block)
+        .query_storage_value_iter(store, at_block)
         .await
         .map(|res| {
             res
                 .into_iter()
                 .map(|(key, value)| {
                     let mut cid_bytes = [0u8; 4];
-                    cid_bytes.copy_from_slice(&key.0[48..]);
+                    cid_bytes.copy_from_slice(&key[48..]);
                     (u32::from_le_bytes(cid_bytes), value)
                 })
                 .collect()
