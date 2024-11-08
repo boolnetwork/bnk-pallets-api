@@ -35,9 +35,7 @@ pub enum CommitteeEvent {
     BindAnchor,
     CommitteeStartWork,
     StopCommittee,
-    RefreshAssets,
     UpdateConfigs,
-    UpdatePoolRate,
     KeyGenerate,
     KeyHandover,
     ExposeIdentity,
@@ -72,7 +70,6 @@ pub enum ChannelEvent {
     SubmitTransaction,
     Connection,
     NewSourceHash,
-    CreateNewTx,
     RefreshInscription,
     SignRefresh,
     SubmitRefresh,
@@ -98,14 +95,8 @@ pub enum MinningEvent {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum OracleEvent {
-    TriggerSign,
-    NewRandomNumber,
-    NewBrc20IndexData,
-    SubmitBrc20ConsensusResult,
-    ReEmitBrc20ConsensusResult,
-    Brc20OracleRequest,
-    Brc20OracleSignResult,
+pub enum CommitteeAssetsEvent {
+    RefreshAssets,
     Unknown,
 }
 
@@ -119,13 +110,21 @@ impl std::str::FromStr for CommitteeEvent {
             "BindAnchor" => Ok(CommitteeEvent::BindAnchor),
             "CommitteeStartWork" => Ok(CommitteeEvent::CommitteeStartWork),
             "StopCommittee" => Ok(CommitteeEvent::StopCommittee),
-            "RefreshAssets" => Ok(CommitteeEvent::RefreshAssets),
             "UpdateConfigs" => Ok(CommitteeEvent::UpdateConfigs),
-            "UpdatePoolRate" => Ok(CommitteeEvent::UpdatePoolRate),
             "KeyGenerate" => Ok(CommitteeEvent::KeyGenerate),
             "KeyHandover" => Ok(CommitteeEvent::KeyHandover),
             "ExposeIdentity" => Ok(CommitteeEvent::ExposeIdentity),
             _ => Ok(CommitteeEvent::Unknown),
+        }
+    }
+}
+
+impl std::str::FromStr for CommitteeAssetsEvent {
+    type Err = ();
+    fn from_str(input: &str) -> Result<CommitteeAssetsEvent, Self::Err> {
+        match input {
+            "RefreshAssets" => Ok(CommitteeAssetsEvent::RefreshAssets),
+            _ => Ok(CommitteeAssetsEvent::Unknown),
         }
     }
 }
@@ -162,7 +161,6 @@ impl std::str::FromStr for ChannelEvent {
             "SubmitTransaction" => Ok(ChannelEvent::SubmitTransaction),
             "Connection" => Ok(ChannelEvent::Connection),
             "NewSourceHash" => Ok(ChannelEvent::NewSourceHash),
-            "CreateNewTx" => Ok(ChannelEvent::CreateNewTx),
             "RefreshInscription" => Ok(ChannelEvent::RefreshInscription),
             "SignRefresh" => Ok(ChannelEvent::SignRefresh),
             "SubmitRefresh" => Ok(ChannelEvent::SubmitRefresh),
@@ -189,22 +187,6 @@ impl std::str::FromStr for MinningEvent {
             "DeviceTryExitService" => Ok(MinningEvent::DeviceTryExitService),
             "DeviceExitService" => Ok(MinningEvent::DeviceExitService),
             _ => Ok(MinningEvent::Unknown),
-        }
-    }
-}
-
-impl std::str::FromStr for OracleEvent {
-    type Err = ();
-    fn from_str(input: &str) -> Result<OracleEvent, Self::Err> {
-        match input {
-            "TriggerSign" => Ok(OracleEvent::TriggerSign),
-            "NewRandomNumber" => Ok(OracleEvent::NewRandomNumber),
-            "NewBrc20IndexData" => Ok(OracleEvent::NewBrc20IndexData),
-            "SubmitBrc20ConsensusResult" => Ok(OracleEvent::SubmitBrc20ConsensusResult),
-            "ReEmitBrc20ConsensusResult" => Ok(OracleEvent::ReEmitBrc20ConsensusResult),
-            "Brc20OracleRequest" => Ok(OracleEvent::Brc20OracleRequest),
-            "Brc20OracleSignResult" => Ok(OracleEvent::Brc20OracleSignResult),
-            _ => Ok(OracleEvent::Unknown),
         }
     }
 }
