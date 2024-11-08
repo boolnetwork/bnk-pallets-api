@@ -120,6 +120,7 @@ pub async fn report_result_by_evm(
 
     let chain_id = evm_chain_id(sub_client, None)
         .await
+        .map_err(|e| e.to_string())?
         .ok_or("get evm chain failed".to_string())?;
     let tx = ethereum::EIP1559TransactionMessage {
         chain_id,
@@ -185,6 +186,7 @@ pub async fn join_or_exit_service_unsigned_by_evm(
 
     let chain_id = evm_chain_id(sub_client, None)
         .await
+        .map_err(|e| e.to_string())?
         .ok_or("get evm chain failed".to_string())?;
     let tx = ethereum::EIP1559TransactionMessage {
         chain_id,
@@ -242,23 +244,4 @@ pub async fn query_current_block_number(sub_client: &BoolSubClient) -> Result<u3
         .await
         .map(|block| block.number())
         .map_err(|e| e.to_string())
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::bool::runtime_types::primitive_types::U256;
-    use sp_core::hashing;
-    use super::*;
-
-    #[test]
-    fn test_tx_source() {
-        let tx_source = TxSource {
-            chain_type: 3,
-            uid: hex::decode("5bbeae709a84c0b06443d400f2af789854d053d78b6c77c448c9070a4c94198a").unwrap().to_vec(),
-            from: hex::decode("ee22b87764f6a3185c931388146627d8023cc6c74759cbce8be0cc29c6a2fb0c").unwrap().to_vec(),
-            to: vec![],
-            amount: U256([0, 0, 0, 0]),
-        };
-        println!("hash: {}", hex::encode(hashing::sha2_256(&tx_source.encode())));
-    }
 }

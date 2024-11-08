@@ -1,5 +1,4 @@
 #![allow(clippy::too_many_arguments)]
-use anyhow::Result;
 use sp_core::H256 as Hash;
 use crate::bool::runtime_types::pallet_committee::types::CryptoType;
 use crate::{BoolSubClient, handle_custom_error};

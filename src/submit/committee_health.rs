@@ -1,4 +1,3 @@
-use anyhow::Result;
 use sp_core::H256 as Hash;
 use crate::{BoolSubClient, handle_custom_error};
 

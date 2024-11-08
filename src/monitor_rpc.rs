@@ -1,10 +1,9 @@
 use precompile_utils::solidity::codec::Writer as EvmDataWriter;
-use sp_core::{H160, H256, U256, Encode};
+use sp_core::{H160, U256, Encode};
 use crate::no_prefix;
 use crate::BoolSubClient;
 use crate::types::{ExtrinsicData, NeedSignedExtrinsic};
-use crate::bool::runtime_types::pallet_channel::types::{TxSource, TxMessage};
-use crate::query::channel::tx_messages;
+use crate::bool::runtime_types::pallet_channel::types::TxSource;
 use crate::query::ethereum::evm_chain_id;
 use crate::submit::channel::submit_transaction;
 use crate::submit::ethereum::transact;
@@ -56,6 +55,7 @@ pub async fn submit_extrinsic_by_evm(
 
             let chain_id = evm_chain_id(sub_client, None)
                 .await
+                .map_err(|e| e.to_string())?
                 .ok_or("get evm chain failed".to_string())?;
 
             let mut inner_nonce = sub_client.inner_nonce.write().await;
@@ -161,13 +161,6 @@ pub async fn import_src_hash(
     import_new_src_hash(sub_client, cid, hash, src_chain_id, uid, need_watch_res, None)
         .await
         .map(|hash| "0x".to_string() + &hex::encode(hash.0))
-}
-
-pub async fn query_tx_messages(
-    sub_client: &BoolSubClient,
-    input: (u32, Vec<u8>),
-) -> Option<TxMessage<u32>> {
-    tx_messages(sub_client, input.0, H256::from_slice(&input.1), None).await
 }
 
 pub async fn sync_tx_status(

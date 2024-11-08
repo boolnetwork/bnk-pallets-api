@@ -1,5 +1,4 @@
 use crate::BoolSubClient;
-use anyhow::Result;
 use sp_core::H256 as Hash;
 
 pub async fn register_device_rpc(

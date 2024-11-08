@@ -1,4 +1,3 @@
-use anyhow::Result;
 use sp_core::H256 as Hash;
 use crate::bool::runtime_types::pallet_channel::types::{HandleConnection, TxSource, CmtType, TaprootType, XudtStatus};
 use crate::{BoolSubClient, handle_custom_error};
