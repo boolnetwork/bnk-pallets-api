@@ -4,7 +4,7 @@
 use codec::Encode;
 use crate::bool::runtime_types::{
     pallet_facility::pallet::DIdentity,
-    pallet_mining::types::{OnChainPayload, Purpose},
+    pallet_mining::types::{OnChainPayload, Purpose, MonitorType},
     ethereum::transaction::{EIP1559Transaction, TransactionV2 as Transaction, TransactionAction},
 };
 use crate::query::mining::{working_devices, challenges};
@@ -30,7 +30,7 @@ pub async fn call_register_v2(
     did: (u16, Vec<u8>),
     report: Vec<u8>,
     identity: Vec<u8>,
-    monitor_type: Vec<u8>,
+    monitor_type: MonitorType,
     signature: Vec<u8>,
 ) -> Result<String, String> {
     let (version, _pk) = did;
@@ -56,7 +56,6 @@ pub async fn call_heartbeat(
     did: (u16, Vec<u8>),
     signature: Vec<u8>,
     proof: Vec<u8>,
-    timestamp: u64,
     session: u32,
     enclave: Vec<u8>,
 ) -> Result<String, String> {
@@ -67,7 +66,6 @@ pub async fn call_heartbeat(
     let payload = OnChainPayload {
         did,
         proof,
-        timestamp,
         session,
         signature,
         enclave,

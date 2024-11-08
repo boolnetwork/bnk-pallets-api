@@ -1,7 +1,7 @@
 use crate::bool::runtime_types::{
     primitive_types::U256,
     pallet_facility::pallet::DIdentity,
-    pallet_mining::types::DeviceInfo,
+    pallet_mining::types::{DeviceInfo, MonitorState},
 };
 use crate::BoolSubClient;
 use anyhow::{anyhow, Result};
@@ -82,12 +82,12 @@ pub async fn device_identity_map(
     sub_client.query_storage(storage_query, at_block).await.map_err(|e| anyhow!("{e:?}"))
 }
 
-pub async fn device_monitor_type(
+pub async fn device_monitor_state(
     sub_client: &BoolSubClient,
     id: Vec<u8>,
     at_block: Option<Hash>,
-) -> Result<Option<Vec<u8>>> {
-    let storage_query = crate::bool::storage().mining().device_monitor_type(id);
+) -> Result<Option<MonitorState>> {
+    let storage_query = crate::bool::storage().mining().device_monitor_state(id);
     sub_client.query_storage(storage_query, at_block).await.map_err(|e| anyhow!("{e:?}"))
 }
 
