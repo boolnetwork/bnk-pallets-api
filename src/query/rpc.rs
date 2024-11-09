@@ -20,3 +20,11 @@ pub async fn relate_deviceid_rpc(
     let storage_query = crate::bool::storage().rpc().watcher_deviceid_map_rpc_deviceid(id.clone());
     sub_client.query_storage(storage_query, at_block).await
 }
+
+pub async fn eth_checkpoint(
+    sub_client: &BoolSubClient,
+    at_block: Option<Hash>,) 
+    -> Result<Option<Vec<u8>>, subxt::Error> {
+    let storage_query = crate::bool::storage().rpc().eth_checkpoint();
+    sub_client.query_storage(storage_query, at_block).await
+}
