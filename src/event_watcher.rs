@@ -56,6 +56,7 @@ impl EventWatcher {
                 Ok(hash) => match get_block_number(self.client.clone(), Some(hash)).await {
                     Ok(block_number) => {
                         self.finalized = block_number;
+                        log::info!(target: &self.log_target, "Initialize event_watcher with latest_block {}, finalized block {}", self.latest, self.finalized);
                         break;
                     }
                     Err(e) => log::error!(target: &self.log_target, "initialize finalized block: {e:?}"),
@@ -68,6 +69,7 @@ impl EventWatcher {
 
     pub fn run(mut self, mode: WatcherMode) {
         tokio::spawn(async move {
+            log::info!(target: &self.log_target, "Start watching blocks by url: {}......", &self.client.ws_url);
             loop {
                 if matches!(mode, WatcherMode::Latest | WatcherMode::Both) {
                     match get_block_number(self.client.clone(), None).await {
