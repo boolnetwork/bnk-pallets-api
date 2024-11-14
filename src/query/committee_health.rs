@@ -1,5 +1,5 @@
 use crate::BoolSubClient;
-use crate::bool::runtime_types::pallet_committee_health::pallet::{ConcensusStage, ConfirmData, DHCState};
+use crate::bool::runtime_types::pallet_committee_health::pallet::{ConsensusStage, ConfirmData, DHCState};
 use sp_core::H256 as Hash;
 
 pub async fn identity_challenge(
@@ -19,11 +19,11 @@ pub async fn court_members(
     sub_client.query_storage(store, at_block).await
 }
 
-pub async fn concensus_state(
+pub async fn consensus_state(
     sub_client: &BoolSubClient,
     at_block: Option<Hash>,
 ) -> Result<Option<DHCState>, subxt::Error> {
-    let store = crate::bool::storage().committee_health().concensus_state();
+    let store = crate::bool::storage().committee_health().consensus_state();
     sub_client.query_storage(store, at_block).await
 }
 
@@ -36,21 +36,12 @@ pub async fn state_votes(
     sub_client.query_storage(store, at_block).await.map(|r| r.unwrap_or_default())
 }
 
-pub async fn concensus_confirm(
+pub async fn consensus_confirms(
     sub_client: &BoolSubClient,
     epoch: u64,
+    stage: ConsensusStage,
     at_block: Option<Hash>,
 ) -> Result<Option<ConfirmData>, subxt::Error> {
-    let store = crate::bool::storage().committee_health().concensus_confirm(epoch);
-    sub_client.query_storage(store, at_block).await
-}
-
-pub async fn concensus_confirms(
-    sub_client: &BoolSubClient,
-    epoch: u64,
-    stage: ConcensusStage,
-    at_block: Option<Hash>,
-) -> Result<Option<ConfirmData>, subxt::Error> {
-    let store = crate::bool::storage().committee_health().concensus_confirms(epoch, stage);
+    let store = crate::bool::storage().committee_health().consensus_confirms(epoch, stage);
     sub_client.query_storage(store, at_block).await
 }
