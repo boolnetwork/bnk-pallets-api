@@ -53,7 +53,6 @@ pub enum CommitteeHealthEvent {
 
 #[derive(Debug, PartialEq)]
 pub enum ConfigsEvent {
-    SetRoundMsgWait,
     ConfigUpdate,
     Unknown,
 }
@@ -146,7 +145,6 @@ impl std::str::FromStr for ConfigsEvent {
     type Err = ();
     fn from_str(input: &str) -> Result<ConfigsEvent, Self::Err> {
         match input {
-            "SetRoundMsgWait" => Ok(ConfigsEvent::SetRoundMsgWait),
             "ConfigUpdate" => Ok(ConfigsEvent::ConfigUpdate),
             _ => Ok(ConfigsEvent::Unknown),
         }

@@ -9,6 +9,14 @@ pub async fn round_msg_wait(
     sub_client.query_storage(store, at_block).await
 }
 
+pub async fn round_msg_request_limit(
+    sub_client: &BoolSubClient,
+    at_block: Option<Hash>,
+) -> Result<Option<u8>, subxt::Error> {
+    let store = crate::bool::storage().configs().round_msg_request_limit();
+    sub_client.query_storage(store, at_block).await
+}
+
 pub async fn monitor_delay_tolerance(
     sub_client: &BoolSubClient,
     chain_id: u32,
