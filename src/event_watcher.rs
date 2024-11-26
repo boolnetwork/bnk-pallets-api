@@ -108,8 +108,11 @@ impl EventWatcher {
                     };
                 }
 
-                bool_telemetry_client::set_best_block_number(self.latest);
-                bool_telemetry_client::set_finalized_block_number(self.finalized);
+                #[cfg(feature = "telemetry")]
+                {
+                    bool_telemetry_client::set_best_block_number(self.latest);
+                    bool_telemetry_client::set_finalized_block_number(self.finalized);
+                }
 
                 tokio::time::sleep(std::time::Duration::from_secs(3)).await;
             }
