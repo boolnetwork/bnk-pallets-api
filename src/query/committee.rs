@@ -105,6 +105,37 @@ pub async fn candidate_links(
     sub_client.query_storage(store, at_block).await.map(|r| r.unwrap_or_default())
 }
 
+pub async fn epoch_change_failures(
+    sub_client: &BoolSubClient,
+    cid: u32,
+    fork: u8,
+    at_block: Option<Hash>,
+) -> Result<u8, subxt::Error> {
+    let store = crate::bool::storage().committee().epoch_changes_failures(cid, fork);
+    sub_client.query_storage(store, at_block).await.map(|r| r.unwrap_or_default())
+}
+
+pub async fn epoch_change_failures_iter(
+    sub_client: &BoolSubClient,
+    page_size: u32,
+    at_block: Option<Hash>,
+) -> Result<Vec<(u32, u8, u8)>, subxt::Error> {
+    let store = crate::bool::storage().committee().epoch_changes_failures_root();
+    sub_client
+        .query_storage_value_iter(store, page_size, at_block)
+        .await
+        .map(|res| {
+            res.into_iter()
+                .map(|(k, v)| {
+                    let mut cid_bytes = [0u8; 4];
+                    cid_bytes.copy_from_slice(&k.0[48..52]);
+                    (u32::from_le_bytes(cid_bytes), k.0[68], v)
+
+                })
+                .collect()
+        })
+}
+
 pub async fn committee_randomness(
     sub_client: &BoolSubClient,
     cid: u32,
