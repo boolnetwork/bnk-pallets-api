@@ -66,7 +66,7 @@ pub enum RpcEvent {
 #[derive(Debug, PartialEq)]
 pub enum ChannelEvent {
     NewTransaction,
-    SubmitTransaction,
+    SubmitTransactionSignResult,
     Connection,
     NewSourceHash,
     RefreshInscription,
@@ -156,7 +156,7 @@ impl std::str::FromStr for ChannelEvent {
     fn from_str(input: &str) -> Result<ChannelEvent, Self::Err> {
         match input {
             "NewTransaction" => Ok(ChannelEvent::NewTransaction),
-            "SubmitTransaction" => Ok(ChannelEvent::SubmitTransaction),
+            "SubmitTransactionSignResult" => Ok(ChannelEvent::SubmitTransactionSignResult),
             "Connection" => Ok(ChannelEvent::Connection),
             "NewSourceHash" => Ok(ChannelEvent::NewSourceHash),
             "RefreshInscription" => Ok(ChannelEvent::RefreshInscription),
