@@ -17,11 +17,11 @@ use sp_core::{H160, H256};
 use precompile_utils::solidity::codec::Writer as EvmDataWriter;
 
 /// keccak_256("submitTxSignResult(bytes[],bytes[],uint256,uint256,bytes32,bytes[])".as_bytes())[..4]
-pub const REPORT_RESULT_SELECTOR: [u8; 4] = [0, 83, 125, 66];
+pub const REPORT_RESULT_SELECTOR: [u8; 4] = [118, 72, 134, 178];
 /// keccak_256("importNewTx(uint256,uint256,bytes[],uint256,bytes[],bytes[],bytes[],uint256)".as_bytes())[..4]
-pub const SUBMIT_TRANSACTION_SELECTOR: [u8; 4] = [137, 84, 190, 92];
+pub const SUBMIT_TRANSACTION_SELECTOR: [u8; 4] = [58, 164, 61, 2];
 /// keccak_256("joinOrExitServiceUnsigned(bytes[],uint256,bytes[],bytes[])".as_bytes())[..4]
-pub const JOIN_OR_EXIT_SERVICE_UNSIGNED_SELECTOR: [u8; 4] = [167, 247, 205, 137];
+pub const JOIN_OR_EXIT_SERVICE_UNSIGNED_SELECTOR: [u8; 4] = [99, 254, 70, 76];
 
 pub async fn call_register_v2(
     sub_client: &BoolSubClient,
