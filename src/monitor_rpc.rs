@@ -1,5 +1,6 @@
 use precompile_utils::solidity::codec::Writer as EvmDataWriter;
 use sp_core::{H160, U256, Encode};
+use precompile_utils::prelude::UnboundedBytes;
 use crate::no_prefix;
 use crate::BoolSubClient;
 use crate::types::{ExtrinsicData, NeedSignedExtrinsic};
@@ -44,11 +45,11 @@ pub async fn submit_extrinsic_by_evm(
             let writer = EvmDataWriter::new_with_selector(u32::from_be_bytes(SUBMIT_TRANSACTION_SELECTOR))
                 .write(tx.channel_id)
                 .write(tx.cid)
-                .write(tx.msg)
+                .write(UnboundedBytes::from(tx.msg))
                 .write(tx.chain_type as u16)
-                .write(tx.uid)
-                .write(tx.from)
-                .write(tx.to)
+                .write(UnboundedBytes::from(tx.uid))
+                .write(UnboundedBytes::from(tx.from))
+                .write(UnboundedBytes::from(tx.to))
                 .write(U256::from(0u128));
 
             let input = writer.build();

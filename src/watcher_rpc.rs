@@ -15,6 +15,7 @@ use crate::BoolSubClient;
 use crate::no_prefix;
 use sp_core::{H160, H256};
 use precompile_utils::solidity::codec::Writer as EvmDataWriter;
+use precompile_utils::prelude::UnboundedBytes;
 
 /// keccak_256("submitTxSignResult(bytes[],bytes[],uint256,uint256,bytes32,bytes[])".as_bytes())[..4]
 pub const REPORT_RESULT_SELECTOR: [u8; 4] = [118, 72, 134, 178];
@@ -109,12 +110,12 @@ pub async fn report_result_by_evm(
 ) -> Result<String, String> {
     // build writer with 'reportResult' select
     let writer = EvmDataWriter::new_with_selector(u32::from_be_bytes(REPORT_RESULT_SELECTOR))
-        .write(pk)
-        .write(sig)
+        .write(UnboundedBytes::from(pk))
+        .write(UnboundedBytes::from(sig))
         .write(cid)
         .write(fork_id)
         .write(hash)
-        .write(signature);
+        .write(UnboundedBytes::from(signature));
 
     let input = writer.build();
 
@@ -177,10 +178,10 @@ pub async fn join_or_exit_service_unsigned_by_evm(
 ) -> Result<String, String> {
     // build writer with select
     let writer = EvmDataWriter::new_with_selector(u32::from_be_bytes(JOIN_OR_EXIT_SERVICE_UNSIGNED_SELECTOR))
-        .write(id)
+        .write(UnboundedBytes::from(id))
         .write(purpose as u8)
-        .write(msg)
-        .write(signature);
+        .write(UnboundedBytes::from(msg))
+        .write(UnboundedBytes::from(signature));
 
     let input = writer.build();
 
