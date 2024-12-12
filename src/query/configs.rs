@@ -53,3 +53,11 @@ pub async fn device_url_map(
     let storage_query = crate::bool::storage().configs().device_url_map(id);
     sub_client.query_storage(storage_query, at_block).await
 }
+
+pub async fn simple_sign(
+    sub_client: &BoolSubClient,
+    at_block: Option<Hash>,
+) -> Result<bool, subxt::Error> {
+    let storage_query = crate::bool::storage().configs().simple_sign();
+    sub_client.query_storage(storage_query, at_block).await.map(|r| r.unwrap_or_default())
+}
