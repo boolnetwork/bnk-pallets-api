@@ -245,3 +245,37 @@ pub async fn submit_uid_sign_result(
     );
     client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
 }
+
+pub async fn request_to_sign_forced_withdrawal(
+    client: &BoolSubClient,
+    tx_nonce: u128,
+    msg: Vec<u8>,
+    watch_res: bool,
+    nonce: Option<u32>,
+) -> Result<Hash, String> {
+    let call = crate::bool::tx().channel().sign_forced_withdrawal(tx_nonce, msg);
+    if watch_res {
+        client.submit_extrinsic_with_signer_and_watch(call, nonce).await.map_err(|e| e.to_string())
+    } else {
+        client.submit_extrinsic_with_signer_without_watch(call, nonce).await.map_err(|e| e.to_string())
+    }
+}
+pub async fn finish_forced_withdrawal_result(
+    client: &BoolSubClient,
+    cid: u32,
+    tx_nonce: u128,
+    sender_pk: Vec<u8>,
+    sender_sig: Vec<u8>,
+    cmt_sig: Vec<u8>,
+    fork_id: u8,
+) -> Result<Hash, String> {
+    let call = crate::bool::tx().channel().finish_forced_withdrawal(
+        cid,
+        tx_nonce,
+        sender_pk,
+        sender_sig,
+        cmt_sig,
+        fork_id,
+    );
+    client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
+}

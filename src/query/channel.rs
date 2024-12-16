@@ -1,7 +1,6 @@
 use sp_core::H256 as Hash;
 use crate::bool::runtime_types::pallet_channel::types::{
-    TxMessage, Channel, SourceTXInfo, BtcTxTunnel, BtcCmtType, TaprootPair, RefreshRecord,
-    XudtInfo, XudtIssueRecord, UidRecord, CommitteeFeeConfig,
+    BtcCmtType, BtcTxTunnel, Channel, CommitteeFeeConfig, ForcedWithdrawalRecord, RefreshRecord, SourceTXInfo, TaprootPair, TxMessage, UidRecord, XudtInfo, XudtIssueRecord
 };
 use crate::bool::runtime_types::fp_account::AccountId20;
 use crate::BoolSubClient;
@@ -198,4 +197,24 @@ pub async fn channel_mapping_tick(
 ) -> Result<Option<Vec<(Vec<u8>, Vec<u8>)>>, subxt::Error> {
     let store = crate::bool::storage().channel().channel_mapping_tick(channel_id);
     sub_client.query_storage(store, at_block).await
+}
+
+pub async fn forced_withdrawal_record(
+    sub_client: &BoolSubClient,
+    nonce_key: u128,
+    at_block: Option<Hash>,
+) -> Option<ForcedWithdrawalRecord> {
+    let store = crate::bool::storage().channel().forced_withdrawal_data(nonce_key);
+    match sub_client.query_storage(store, at_block).await {
+        Ok(res) => {
+            if res.is_none() {
+                log::warn!(target: "pallets_api", "query none forced withdrawal data for nonce key: {:?}", nonce_key);
+            }
+            res
+        },
+        Err(e) => {
+            log::error!(target: "pallets_api", "query forced withdrawal data failed for: {:?}", e);
+            return None;
+        }
+    }
 }

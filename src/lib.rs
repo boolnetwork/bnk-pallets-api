@@ -80,6 +80,9 @@ pub enum ChannelEvent {
     SubmitSignNewUidResult,
     UpdateChannelMappingTick,
     UpdateCommitteeFeeConfig,
+    RequestForcedWithdrawal,
+    SignForcedWithdrawal,
+    FinishForcedWithdrawal,
     Unknown,
 }
 
@@ -170,6 +173,9 @@ impl std::str::FromStr for ChannelEvent {
             "UpdateCommitteeFeeConfig" => Ok(ChannelEvent::UpdateCommitteeFeeConfig),
             "SignNewUid" => Ok(ChannelEvent::SignNewUid),
             "SubmitSignNewUidResult" => Ok(ChannelEvent::SubmitSignNewUidResult),
+            "RequestForcedWithdrawal" => Ok(ChannelEvent::RequestForcedWithdrawal),
+            "SignForcedWithdrawal" => Ok(ChannelEvent::SignForcedWithdrawal),
+            "FinishForcedWithdrawal" => Ok(ChannelEvent::FinishForcedWithdrawal),
             _ => Ok(ChannelEvent::Unknown),
         }
     }
