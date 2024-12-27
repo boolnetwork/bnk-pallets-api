@@ -12,7 +12,7 @@ use subxt::config::{
 use subxt::{
     OnlineClient, Config, tx::{BoolSigner, Payload as TxPayload, TxProgress, SecretKey, Signer}, JsonRpseeError,
     Error, error::RpcError, storage::{Address as StorageAddress}, ext::subxt_core::{utils::Yes, constants::address::Address as ConstantAddress},
-    lightclient::{ChainConfig, LightClient}, config::polkadot::PolkadotExtrinsicParamsBuilder,
+    lightclient::{ChainConfig, LightClient, JsonRpcError}, config::polkadot::PolkadotExtrinsicParamsBuilder,
 };
 use crate::bool::runtime_types::ethereum::transaction::{EIP1559Transaction, TransactionV2 as EvmTransaction, TransactionAction};
 
@@ -500,7 +500,7 @@ impl<C: Config, P: Signer<C> + Clone> SubClient<C, P> {
                 Ok(())
             },
             Err(e) => {
-                log::warn!(target: "subxt", "rebuild client for: {:?}", e);
+                log::warn!(target: "subxt", "get remote runtime version for: {:?}", e);
                 drop(client);
                 self.handle_error(e).await
             },
@@ -536,18 +536,26 @@ impl<C: Config, P: Signer<C> + Clone> SubClient<C, P> {
                 self.rebuild_client().await
             },
             Error::Rpc(RpcError::ClientError(client_err)) => {
-                match client_err.downcast_ref::<JsonRpseeError>() {
-                    Some(e) => {
-                        match *e {
-                            JsonRpseeError::RestartNeeded(_) => {
-                                log::warn!(target: "subxt", "rebuild client for {:?}", e);
-                                self.rebuild_client().await
-                            },
-                            _ => Err(Error::Rpc(RpcError::ClientError(client_err))),
+                if let Some(e) = client_err.downcast_ref::<JsonRpseeError>() {
+                    match *e {
+                        JsonRpseeError::RestartNeeded(_) => {
+                            log::warn!(target: "subxt", "rebuild client for {:?}", e);
+                            self.rebuild_client().await
+                        },
+                        _ => Err(Error::Rpc(RpcError::ClientError(client_err))),
+                    }
+                } else {
+                    if let Some(e) = client_err.downcast_ref::<JsonRpcError>() {
+                        if e.to_string().contains("No node available for storage query") {
+                            log::warn!(target: "subxt", "rebuild client for {:?}", e);
+                            self.rebuild_client().await
+                        } else {
+                            Err(Error::Rpc(RpcError::ClientError(client_err)))
                         }
-                    },
-                    // Not handle other error type now
-                    None => Err(Error::Rpc(RpcError::ClientError(client_err))),
+                    } else {
+                        // Not handle other error type now
+                        Err(Error::Rpc(RpcError::ClientError(client_err)))
+                    }
                 }
             },
             _ => Err(err),
@@ -632,7 +640,7 @@ async fn test_nonce_roll_back() {
 
 #[tokio::test]
 async fn test_light_client() {
-    std::env::set_var("RUST_LOG", "info");
+    std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
     // let chain_spec = include_str!("../../node/res/local.json");
