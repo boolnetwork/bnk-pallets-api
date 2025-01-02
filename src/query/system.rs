@@ -16,7 +16,9 @@ pub async fn block_hash(
         },
         Err(e) => {
             log::error!(target: "pallets_api", "query block hash failed: height: {:?} for {:?}", height, e);
-            Err(e.to_string())
+            let err = e.to_string();
+            sub_client.handle_error(e).await.map_err(|e| e.to_string())?;
+            Err(err)
         }
     }
 }
