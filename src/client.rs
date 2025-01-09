@@ -42,6 +42,8 @@ pub struct SubClient<C: Config, P: Signer<C> + Clone> {
     pub call_cache: Arc<RwLock<HashMap<u64, (Box<dyn TxPayload + Send + Sync>, bool, Vec<u8>, u128)>>>,
     // milliseconds, default 10000 milllis(10 seconds)
     pub warn_time: u128,
+    pub chain_config: Option<String>,
+    pub enable_runtime_version_check: bool,
 }
 
 impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
@@ -60,6 +62,8 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
             cache_size_for_call: cache_size_for_call.unwrap_or(10),
             call_cache: Arc::new(RwLock::new(HashMap::new())),
             warn_time: warn_time.unwrap_or(10000),
+            chain_config: None,
+            enable_runtime_version_check: true,
         }
     }
 
@@ -83,15 +87,20 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
             cache_size_for_call: cache_size_for_call.unwrap_or(10),
             call_cache: Arc::new(RwLock::new(HashMap::new())),
             warn_time: warn_time.unwrap_or(10000),
+            chain_config: None,
+            enable_runtime_version_check: true,
         })
     }
 
-    pub async fn new_light_client(_chain_spec: &str, node_ws_url: Option<String>, sk: Option<String>, warn_time: Option<u128>, cache_size_for_call: Option<u32>) -> Result<SubClient<BoolConfig, BoolSigner<BoolConfig>>, String> {
+    pub async fn new_light_client(chain_spec: Option<String>, node_ws_url: Option<String>, sk: Option<String>, warn_time: Option<u128>, cache_size_for_call: Option<u32>) -> Result<SubClient<BoolConfig, BoolSigner<BoolConfig>>, String> {
         use subxt::utils::fetch_chainspec_from_rpc_node;
-        let chain_spec = fetch_chainspec_from_rpc_node(&node_ws_url.clone().unwrap()).await.map_err(|e| e.to_string())?;
-        // println!("chain_spec json: {:?}", chain_spec.get());
-        // let chain_config = ChainConfig::chain_spec(chain_spec);
-        let chain_config = ChainConfig::chain_spec(chain_spec.get());
+        let config_str = if let Some(spec) = &chain_spec {
+            spec.to_string()
+        } else {
+            let chain_spec_remote = fetch_chainspec_from_rpc_node(&node_ws_url.clone().ok_or("Not set ws url to fetch chain spec")?).await.map_err(|e| e.to_string())?;
+            chain_spec_remote.get().to_string()
+        };
+        let chain_config = ChainConfig::chain_spec(config_str);
         let (_light_client, chain_rpc) = LightClient::relay_chain(chain_config).map_err(|e| e.to_string())?;
         let subxt_client = OnlineClient::<BoolConfig>::from_rpc_client(chain_rpc).await.map_err(|e| e.to_string())?;
         let signer = if let Some(sk) = sk {
@@ -102,13 +111,15 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
             None
         };
         Ok(SubClient {
-            ws_url: node_ws_url.unwrap(),
+            ws_url: node_ws_url.unwrap_or_default(),
             signer,
             client: Arc::new(RwLock::new(subxt_client)),
             inner_nonce: Arc::new(RwLock::new(0)),
             cache_size_for_call: cache_size_for_call.unwrap_or(10),
             call_cache: Arc::new(RwLock::new(HashMap::new())),
             warn_time: warn_time.unwrap_or(10000),
+            chain_config: chain_spec,
+            enable_runtime_version_check: false,
         })
     }
 
@@ -474,7 +485,7 @@ impl<C: Config, P: Signer<C> + Clone> SubClient<C, P> {
             tmp.push(ws_url.path());
             fixed_ws_url = tmp.concat();
         }
-        let subxt_client = OnlineClient::<C>::from_url(fixed_ws_url.clone()).await?;
+        let subxt_client = OnlineClient::<C>::from_insecure_url(fixed_ws_url.clone()).await?;
         Ok(
             SubClient {
                 ws_url: fixed_ws_url,
@@ -484,11 +495,17 @@ impl<C: Config, P: Signer<C> + Clone> SubClient<C, P> {
                 cache_size_for_call: cache_size_for_call.unwrap_or(10),
                 call_cache: Arc::new(RwLock::new(HashMap::new())),
                 warn_time: warn_time.unwrap_or(10000),
+                chain_config: None,
+                enable_runtime_version_check: true
             }
         )
     }
 
     pub async fn check_client_runtime_version_and_update(&self) -> Result<(), Error> {
+        if !self.enable_runtime_version_check {
+            // skip runtime version check
+            return Ok(())
+        }
         let timer =   Instant::now();
         let client = self.client.read().await;
         let res = match client.backend().current_runtime_version().await {
@@ -515,10 +532,14 @@ impl<C: Config, P: Signer<C> + Clone> SubClient<C, P> {
         use subxt::utils::fetch_chainspec_from_rpc_node;
 
         let timer = Instant::now();
-        let chain_spec = fetch_chainspec_from_rpc_node(&self.ws_url).await.map_err(|e| e.to_string())?;
-        // println!("chain_spec json: {:?}", chain_spec.get());
-        // let chain_config = ChainConfig::chain_spec(chain_spec);
-        let chain_config = ChainConfig::chain_spec(chain_spec.get());
+
+        let config_str = if let Some(spec) = &self.chain_config {
+            spec.to_string()
+        } else {
+            let chain_spec_remote = fetch_chainspec_from_rpc_node(&self.ws_url).await.map_err(|e| e.to_string())?;
+            chain_spec_remote.get().to_string()
+        };
+        let chain_config = ChainConfig::chain_spec(config_str);
         let (_light_client, chain_rpc) = LightClient::relay_chain(chain_config).map_err(|e| e.to_string())?;
         let client = OnlineClient::<C>::from_rpc_client(chain_rpc).await.map_err(|e| e.to_string())?;
         *self.client.write().await = client;
@@ -607,8 +628,8 @@ async fn test_query_cmt() {
 
 #[tokio::test]
 async fn test_query_btc_committee_type_iter() {
-    let url = "ws://127.0.0.1:9933".to_string();
-    let client = crate::client::SubClient::new_from_signer(&url, None, None, None).await.unwrap();
+    let url = "ws://127.0.0.1:9944".to_string();
+    let client = crate::BoolSubClient::new_from_signer(&url, None, None, None).await.unwrap();
     let res = crate::query::channel::btc_committee_type_iter(&client, None).await.unwrap();
     println!("res: {res:?}");
 }
