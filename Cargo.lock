@@ -5361,7 +5361,7 @@ dependencies = [
 [[package]]
 name = "smoldot"
 version = "0.18.0"
-source = "git+https://github.com/ABMatrix/smoldot?branch=ignore-duplicate-grandpa-pk#803f17d027eed0963c42258345d6c2011f938fa4"
+source = "git+https://github.com/ABMatrix/smoldot?branch=bool#dccd8223daedf6aae83310ac1a27da95cb784e7c"
 dependencies = [
  "arrayvec 0.7.6",
  "async-lock",
@@ -5391,6 +5391,7 @@ dependencies = [
  "num-bigint",
  "num-rational",
  "num-traits",
+ "parity-scale-codec",
  "pbkdf2 0.12.2",
  "pin-project",
  "poly1305",
@@ -5415,7 +5416,7 @@ dependencies = [
 [[package]]
 name = "smoldot-light"
 version = "0.16.2"
-source = "git+https://github.com/ABMatrix/smoldot?branch=ignore-duplicate-grandpa-pk#803f17d027eed0963c42258345d6c2011f938fa4"
+source = "git+https://github.com/ABMatrix/smoldot?branch=bool#dccd8223daedf6aae83310ac1a27da95cb784e7c"
 dependencies = [
  "async-channel",
  "async-lock",
@@ -5624,7 +5625,7 @@ dependencies = [
 [[package]]
 name = "sp-crypto-ec-utils"
 version = "0.10.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#ca7817922148c1e6f6856138998f7135f42f3f4f"
+source = "git+https://github.com/paritytech/polkadot-sdk#d5539aa63edc8068eff9c4cbb78214c3a5ab66b2"
 dependencies = [
  "ark-bls12-377",
  "ark-bls12-377-ext",
@@ -5654,7 +5655,7 @@ dependencies = [
 [[package]]
 name = "sp-debug-derive"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#ca7817922148c1e6f6856138998f7135f42f3f4f"
+source = "git+https://github.com/paritytech/polkadot-sdk#d5539aa63edc8068eff9c4cbb78214c3a5ab66b2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5675,7 +5676,7 @@ dependencies = [
 [[package]]
 name = "sp-externalities"
 version = "0.25.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#ca7817922148c1e6f6856138998f7135f42f3f4f"
+source = "git+https://github.com/paritytech/polkadot-sdk#d5539aa63edc8068eff9c4cbb78214c3a5ab66b2"
 dependencies = [
  "environmental",
  "parity-scale-codec",
@@ -5809,7 +5810,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface"
 version = "24.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#ca7817922148c1e6f6856138998f7135f42f3f4f"
+source = "git+https://github.com/paritytech/polkadot-sdk#d5539aa63edc8068eff9c4cbb78214c3a5ab66b2"
 dependencies = [
  "bytes",
  "impl-trait-for-tuples",
@@ -5841,7 +5842,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface-proc-macro"
 version = "17.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#ca7817922148c1e6f6856138998f7135f42f3f4f"
+source = "git+https://github.com/paritytech/polkadot-sdk#d5539aa63edc8068eff9c4cbb78214c3a5ab66b2"
 dependencies = [
  "Inflector",
  "expander",
@@ -5894,7 +5895,7 @@ source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#d
 [[package]]
 name = "sp-std"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#ca7817922148c1e6f6856138998f7135f42f3f4f"
+source = "git+https://github.com/paritytech/polkadot-sdk#d5539aa63edc8068eff9c4cbb78214c3a5ab66b2"
 
 [[package]]
 name = "sp-storage"
@@ -5912,7 +5913,7 @@ dependencies = [
 [[package]]
 name = "sp-storage"
 version = "19.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#ca7817922148c1e6f6856138998f7135f42f3f4f"
+source = "git+https://github.com/paritytech/polkadot-sdk#d5539aa63edc8068eff9c4cbb78214c3a5ab66b2"
 dependencies = [
  "impl-serde 0.5.0",
  "parity-scale-codec",
@@ -5936,7 +5937,7 @@ dependencies = [
 [[package]]
 name = "sp-tracing"
 version = "16.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#ca7817922148c1e6f6856138998f7135f42f3f4f"
+source = "git+https://github.com/paritytech/polkadot-sdk#d5539aa63edc8068eff9c4cbb78214c3a5ab66b2"
 dependencies = [
  "parity-scale-codec",
  "tracing",
@@ -6012,7 +6013,7 @@ dependencies = [
 [[package]]
 name = "sp-wasm-interface"
 version = "20.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#ca7817922148c1e6f6856138998f7135f42f3f4f"
+source = "git+https://github.com/paritytech/polkadot-sdk#d5539aa63edc8068eff9c4cbb78214c3a5ab66b2"
 dependencies = [
  "anyhow",
  "impl-trait-for-tuples",
@@ -6152,7 +6153,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 [[package]]
 name = "subxt"
 version = "0.37.0"
-source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#c35938d8c2d6fb248890c9259088cbe7cf99ca41"
+source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#fe15c915fe063c3add2c39e1cb3fd6b479fe6f77"
 dependencies = [
  "async-trait",
  "derive-where",
@@ -6188,7 +6189,7 @@ dependencies = [
 [[package]]
 name = "subxt-codegen"
 version = "0.37.0"
-source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#c35938d8c2d6fb248890c9259088cbe7cf99ca41"
+source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#fe15c915fe063c3add2c39e1cb3fd6b479fe6f77"
 dependencies = [
  "frame-metadata 16.0.0",
  "heck",
@@ -6208,7 +6209,7 @@ dependencies = [
 [[package]]
 name = "subxt-core"
 version = "0.37.0"
-source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#c35938d8c2d6fb248890c9259088cbe7cf99ca41"
+source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#fe15c915fe063c3add2c39e1cb3fd6b479fe6f77"
 dependencies = [
  "base58",
  "blake2",
@@ -6238,7 +6239,7 @@ dependencies = [
 [[package]]
 name = "subxt-lightclient"
 version = "0.37.0"
-source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#c35938d8c2d6fb248890c9259088cbe7cf99ca41"
+source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#fe15c915fe063c3add2c39e1cb3fd6b479fe6f77"
 dependencies = [
  "futures",
  "futures-util",
@@ -6254,7 +6255,7 @@ dependencies = [
 [[package]]
 name = "subxt-macro"
 version = "0.37.0"
-source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#c35938d8c2d6fb248890c9259088cbe7cf99ca41"
+source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#fe15c915fe063c3add2c39e1cb3fd6b479fe6f77"
 dependencies = [
  "darling 0.20.10",
  "parity-scale-codec",
@@ -6268,7 +6269,7 @@ dependencies = [
 [[package]]
 name = "subxt-metadata"
 version = "0.37.0"
-source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#c35938d8c2d6fb248890c9259088cbe7cf99ca41"
+source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#fe15c915fe063c3add2c39e1cb3fd6b479fe6f77"
 dependencies = [
  "frame-metadata 16.0.0",
  "hashbrown 0.14.5",
