@@ -5361,7 +5361,7 @@ dependencies = [
 [[package]]
 name = "smoldot"
 version = "0.18.0"
-source = "git+https://github.com/ABMatrix/smoldot?branch=bool#fc8c6916f8f8cb0ac3080c4d670991a1ed32e36a"
+source = "git+https://github.com/ABMatrix/smoldot?branch=bool#950eb5d2f4723da7ef5454084ab23f94344e1029"
 dependencies = [
  "arrayvec 0.7.6",
  "async-lock",
@@ -5416,7 +5416,7 @@ dependencies = [
 [[package]]
 name = "smoldot-light"
 version = "0.16.2"
-source = "git+https://github.com/ABMatrix/smoldot?branch=bool#fc8c6916f8f8cb0ac3080c4d670991a1ed32e36a"
+source = "git+https://github.com/ABMatrix/smoldot?branch=bool#950eb5d2f4723da7ef5454084ab23f94344e1029"
 dependencies = [
  "async-channel",
  "async-lock",
@@ -6153,7 +6153,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 [[package]]
 name = "subxt"
 version = "0.37.0"
-source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#9833f5a9b00ed7d695665baf533c4ce7a6847c54"
+source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#a626f7fea19c6ca27b72ff255c372d28398ad128"
 dependencies = [
  "async-trait",
  "derive-where",
@@ -6189,7 +6189,7 @@ dependencies = [
 [[package]]
 name = "subxt-codegen"
 version = "0.37.0"
-source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#9833f5a9b00ed7d695665baf533c4ce7a6847c54"
+source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#a626f7fea19c6ca27b72ff255c372d28398ad128"
 dependencies = [
  "frame-metadata 16.0.0",
  "heck",
@@ -6209,7 +6209,7 @@ dependencies = [
 [[package]]
 name = "subxt-core"
 version = "0.37.0"
-source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#9833f5a9b00ed7d695665baf533c4ce7a6847c54"
+source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#a626f7fea19c6ca27b72ff255c372d28398ad128"
 dependencies = [
  "base58",
  "blake2",
@@ -6239,7 +6239,7 @@ dependencies = [
 [[package]]
 name = "subxt-lightclient"
 version = "0.37.0"
-source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#9833f5a9b00ed7d695665baf533c4ce7a6847c54"
+source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#a626f7fea19c6ca27b72ff255c372d28398ad128"
 dependencies = [
  "futures",
  "futures-util",
@@ -6255,7 +6255,7 @@ dependencies = [
 [[package]]
 name = "subxt-macro"
 version = "0.37.0"
-source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#9833f5a9b00ed7d695665baf533c4ce7a6847c54"
+source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#a626f7fea19c6ca27b72ff255c372d28398ad128"
 dependencies = [
  "darling 0.20.10",
  "parity-scale-codec",
@@ -6269,7 +6269,7 @@ dependencies = [
 [[package]]
 name = "subxt-metadata"
 version = "0.37.0"
-source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#9833f5a9b00ed7d695665baf533c4ce7a6847c54"
+source = "git+https://github.com/boolnetwork/subxt.git?branch=v0.37.0#a626f7fea19c6ca27b72ff255c372d28398ad128"
 dependencies = [
  "frame-metadata 16.0.0",
  "hashbrown 0.14.5",
