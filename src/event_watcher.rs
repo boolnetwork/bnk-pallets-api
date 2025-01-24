@@ -65,6 +65,12 @@ impl EventWatcher {
             }
             tokio::time::sleep(std::time::Duration::from_secs(1)).await;
         }
+        #[cfg(feature = "telemetry")]
+        {
+            bool_telemetry_client::set_best_block_number(self.latest);
+            bool_telemetry_client::set_finalized_block_number(self.finalized);
+            bool_telemetry_client::set_handled_block_number(self.finalized);
+        }
     }
 
     pub fn run(mut self, mode: WatcherMode) {
@@ -130,8 +136,7 @@ impl EventWatcher {
                             let events = match self.client.client.read().await.events().at(hash).await {
                                 Ok(events) => events,
                                 Err(e) => {
-                                    log::error!(target: &self.log_target, "event watcher get events by block hash: {hash:?} failed for: {e:?}");
-                                    continue;
+                                    panic!("event watcher get events by block hash: {hash:?} failed for: {e:?}");
                                 }
                             };
                             let events: Vec<_> = events
@@ -140,24 +145,21 @@ impl EventWatcher {
                                 .filter_map(|event| match event {
                                     Ok(event) => Some(event),
                                     Err(e) => {
-                                        log::error!(target: &self.log_target, "event decode from metadata failed for: {e:?}");
-                                        None
+                                        panic!("event decode from metadata failed for: {e:?}");
                                     }
                                 })
                                 .collect();
                             if let Err(e) = self.handler.send((mode, block, hash, events)).await {
-                                log::error!(target: &self.log_target, "handle_blocks_events(send events to handler err: {e:?})");
+                                panic!("handle_blocks_events(send events to handler err: {e:?})");
                             }
                         }
                         None => {
-                            log::error!(target: &self.log_target, "handle_blocks_events(get empty block hash by number: {block:?})");
-                            continue;
+                            panic!("handle_blocks_events(get empty block hash by number: {block:?})");
                         }
                     }
                 }
                 Err(e) => {
-                    log::error!(target: &self.log_target, "handle_blocks_events(get block hash by number: {block:?} failed for: {e:?})");
-                    continue;
+                    panic!("handle_blocks_events(get block hash by number: {block:?} failed for: {e:?})");
                 }
             }
         }
