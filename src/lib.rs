@@ -42,6 +42,23 @@ pub enum CommitteeEvent {
     Unknown,
 }
 
+impl CommitteeEvent {
+    pub fn event_names() -> Vec<String> {
+        vec![
+            "CreateCommittee".into(),
+            "CommitteeCreateFinished".into(),
+            "ApplyEpochChange".into(),
+            "BindAnchor".into(),
+            "CommitteeStartWork".into(),
+            "StopCommittee".into(),
+            "UpdateConfigs".into(),
+            "KeyGenerate".into(),
+            "KeyHandover".into(),
+            "ExposeIdentity".into(),
+        ]
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum CommitteeHealthEvent {
     Challenges,
@@ -51,16 +68,39 @@ pub enum CommitteeHealthEvent {
     Unknown,
 }
 
+impl CommitteeHealthEvent {
+    pub fn event_names() -> Vec<String> {
+        vec![
+            "Challenges".into(),
+            "HealthReport".into(),
+            "ConfirmDHCState".into(),
+            "PunishEvilDevice".into(),
+        ]
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum ConfigsEvent {
     ConfigUpdate,
     Unknown,
 }
 
+impl ConfigsEvent {
+    pub fn event_names() -> Vec<String> {
+        vec!["ConfigUpdate".into()]
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum RpcEvent {
     DeviceRegistered,
     Unknown,
+}
+
+impl RpcEvent {
+    pub fn event_names() -> Vec<String> {
+        vec!["DeviceRegistered".into()]
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -86,8 +126,33 @@ pub enum ChannelEvent {
     Unknown,
 }
 
+impl ChannelEvent {
+    pub fn event_names() -> Vec<String> {
+        vec![
+            "NewTransaction".into(),
+            "SubmitTransactionSignResult".into(),
+            "Connection".into(),
+            "NewSourceHash".into(),
+            "RefreshInscription".into(),
+            "SignRefresh".into(),
+            "SubmitRefresh".into(),
+            "RequestNewIssueXudt".into(),
+            "SignIssueXudt".into(),
+            "SignIssueXudtFinished".into(),
+            "UpdateIssueXudtStatus".into(),
+            "SignNewUid".into(),
+            "SubmitSignNewUidResult".into(),
+            "UpdateChannelMappingTick".into(),
+            "UpdateCommitteeFeeConfig".into(),
+            "RequestForcedWithdrawal".into(),
+            "SignForcedWithdrawal".into(),
+            "FinishForcedWithdrawal".into(), 
+        ]
+    }
+}
+
 #[derive(Debug, PartialEq)]
-pub enum MinningEvent {
+pub enum MiningEvent {
     NewChallenge,
     Heartbeat,
     DeviceJoinService,
@@ -96,10 +161,28 @@ pub enum MinningEvent {
     Unknown,
 }
 
+impl MiningEvent {
+    pub fn event_names() -> Vec<String> {
+        vec![
+            "NewChallenge".into(),
+            "Heartbeat".into(),
+            "DeviceJoinService".into(),
+            "DeviceTryExitService".into(),
+            "DeviceExitService".into(),
+        ]
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum CommitteeAssetsEvent {
     RefreshAssets,
     Unknown,
+}
+
+impl CommitteeAssetsEvent {
+    pub fn event_names() -> Vec<String> {
+        vec!["RefreshAssets".into()]
+    }
 }
 
 impl std::str::FromStr for CommitteeEvent {
@@ -181,16 +264,16 @@ impl std::str::FromStr for ChannelEvent {
     }
 }
 
-impl std::str::FromStr for MinningEvent {
+impl std::str::FromStr for MiningEvent {
     type Err = ();
-    fn from_str(input: &str) -> Result<MinningEvent, Self::Err> {
+    fn from_str(input: &str) -> Result<MiningEvent, Self::Err> {
         match input {
-            "NewChallenge" => Ok(MinningEvent::NewChallenge),
-            "Heartbeat" => Ok(MinningEvent::Heartbeat),
-            "DeviceJoinService" => Ok(MinningEvent::DeviceJoinService),
-            "DeviceTryExitService" => Ok(MinningEvent::DeviceTryExitService),
-            "DeviceExitService" => Ok(MinningEvent::DeviceExitService),
-            _ => Ok(MinningEvent::Unknown),
+            "NewChallenge" => Ok(MiningEvent::NewChallenge),
+            "Heartbeat" => Ok(MiningEvent::Heartbeat),
+            "DeviceJoinService" => Ok(MiningEvent::DeviceJoinService),
+            "DeviceTryExitService" => Ok(MiningEvent::DeviceTryExitService),
+            "DeviceExitService" => Ok(MiningEvent::DeviceExitService),
+            _ => Ok(MiningEvent::Unknown),
         }
     }
 }

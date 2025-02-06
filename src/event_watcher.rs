@@ -3,7 +3,7 @@ use bnk_node_primitives::Hash;
 use tokio::sync::mpsc::Sender;
 use subxt::Config;
 use subxt::events::EventDetails;
-use std::cmp::Ordering;
+use std::{cmp::Ordering, collections::HashMap};
 use crate::{BoolConfig, BoolSubClient as SubClient};
 
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
@@ -14,11 +14,20 @@ pub enum WatcherMode {
     Finalized,
 }
 
+#[derive(Clone, Debug)]
+pub enum EventFilter {
+    // pallet names
+    Pallets(Vec<String>),
+    // pallet -> event_names
+    Events(HashMap<String, Vec<String>>),
+}
+
 #[derive(Clone)]
 pub struct EventWatcher {
     log_target: String,
     client: SubClient,
     handler: Sender<(WatcherMode, u32, Hash, Vec<EventDetails<BoolConfig>>)>,
+    pub filter: Option<EventFilter>,
     pub latest: u32,
     pub finalized: u32,
 }
@@ -33,9 +42,14 @@ impl EventWatcher {
             log_target: log_target.to_string(),
             client,
             handler,
+            filter: None,
             latest: 0,
             finalized: 0,
         }
+    }
+
+    pub fn set_filter(&mut self, filter: Option<EventFilter>) {
+        self.filter = filter;
     }
 
     pub async fn initialize(&mut self) {
@@ -143,7 +157,32 @@ impl EventWatcher {
                                 .iter()
                                 .into_iter()
                                 .filter_map(|event| match event {
-                                    Ok(event) => Some(event),
+                                    Ok(event) => {
+                                        if let Some(filter) = &self.filter {
+                                            match filter {
+                                                EventFilter::Pallets(pallets) => {
+                                                    if pallets.contains(&event.pallet_name().to_string()) {
+                                                        Some(event)
+                                                    } else {
+                                                        None
+                                                    }
+                                                },
+                                                EventFilter::Events(events) => {
+                                                    if let Some(event_names) = events.get(&event.pallet_name().to_string()) {
+                                                        if event_names.contains(&event.variant_name().to_string()) {
+                                                            Some(event)
+                                                        } else {
+                                                            None
+                                                        }
+                                                    } else {
+                                                        Some(event)
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            Some(event)
+                                        }
+                                    },
                                     Err(e) => {
                                         panic!("event decode from metadata failed for: {e:?}");
                                     }
