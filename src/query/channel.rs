@@ -1,6 +1,6 @@
 use sp_core::H256 as Hash;
 use crate::bool::runtime_types::pallet_channel::types::{
-    BtcCmtType, BtcTxTunnel, Channel, CommitteeFeeConfig, ForcedWithdrawalRecord, RefreshRecord, SourceTXInfo, TaprootPair, TxMessage, UidRecord, XudtInfo, XudtIssueRecord
+    BtcCmtType, BtcTxTunnel, Channel, CommitteeFeeConfig, ForcedWithdrawalRecord, RefreshRecord, SourceTXInfo, TaprootPair, TxMessage, UidRecord, XudtInfo, XudtIssueRecord, BtcScriptPair
 };
 use crate::bool::runtime_types::fp_account::AccountId20;
 use crate::BoolSubClient;
@@ -90,6 +90,27 @@ pub async fn escape_taproot_iter(
     at_block: Option<Hash>,
 ) -> Result<Vec<TaprootPair>, subxt::Error> {
     let store = crate::bool::storage().channel().escape_taproots_root();
+    sub_client
+        .query_storage_value_iter(store, page_size, at_block)
+        .await
+        .map(|res| {
+            res.into_iter()
+                .map(|v| v.1)
+                .collect()
+        })
+}
+
+pub async fn bound_script(sub_client: &BoolSubClient, cid: u32, at_block: Option<Hash>) -> Result<Option<BtcScriptPair>, subxt::Error> {
+    let store = crate::bool::storage().channel().bound_scripts(cid);
+    sub_client.query_storage(store, at_block).await
+}
+
+pub async fn bound_script_iter(
+    sub_client: &BoolSubClient,
+    page_size: u32,
+    at_block: Option<Hash>,
+) -> Result<Vec<BtcScriptPair>, subxt::Error> {
+    let store = crate::bool::storage().channel().bound_scripts_root();
     sub_client
         .query_storage_value_iter(store, page_size, at_block)
         .await
