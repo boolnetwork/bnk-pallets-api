@@ -155,9 +155,11 @@ impl ChannelEvent {
 pub enum MiningEvent {
     NewChallenge,
     Heartbeat,
+    DeviceRegistered,
     DeviceJoinService,
     DeviceTryExitService,
     DeviceExitService,
+    DeviceRemoved,
     Unknown,
 }
 
@@ -166,9 +168,11 @@ impl MiningEvent {
         vec![
             "NewChallenge".into(),
             "Heartbeat".into(),
+            "DeviceRegistered".into(),
             "DeviceJoinService".into(),
             "DeviceTryExitService".into(),
             "DeviceExitService".into(),
+            "DeviceRemoved".into(),
         ]
     }
 }
@@ -270,9 +274,11 @@ impl std::str::FromStr for MiningEvent {
         match input {
             "NewChallenge" => Ok(MiningEvent::NewChallenge),
             "Heartbeat" => Ok(MiningEvent::Heartbeat),
+            "DeviceRegistered" => Ok(MiningEvent::DeviceRegistered),
             "DeviceJoinService" => Ok(MiningEvent::DeviceJoinService),
             "DeviceTryExitService" => Ok(MiningEvent::DeviceTryExitService),
             "DeviceExitService" => Ok(MiningEvent::DeviceExitService),
+            "DeviceRemoved" => Ok(MiningEvent::DeviceRemoved),
             _ => Ok(MiningEvent::Unknown),
         }
     }

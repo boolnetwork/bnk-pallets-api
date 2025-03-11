@@ -10,7 +10,7 @@ use crate::bool::runtime_types::{
 use crate::query::mining::{working_devices, challenges};
 use crate::query::ethereum::evm_chain_id;
 use crate::submit::mining::{im_online, register_device_with_ident};
-use crate::submit::ethereum::transact_unsigned;
+use crate::submit::ethereum::{transact_unsigned, transact_unsigned_call_bytes};
 use crate::BoolSubClient;
 use crate::no_prefix;
 use sp_core::{H160, H256};
@@ -107,7 +107,8 @@ pub async fn report_result_by_evm(
     fork_id: u8,
     hash: sp_core::H256,
     signature: Vec<u8>,
-) -> Result<String, String> {
+    call_bytes: bool,
+) -> Result<Vec<u8>, String> {
     // build writer with 'reportResult' select
     let writer = EvmDataWriter::new_with_selector(u32::from_be_bytes(REPORT_RESULT_SELECTOR))
         .write(UnboundedBytes::from(pk))
@@ -164,9 +165,13 @@ pub async fn report_result_by_evm(
         ),
     });
 
-    transact_unsigned(sub_client, transaction)
-        .await
-        .map(|hash| "0x".to_string() + &hex::encode(hash.0))
+    if call_bytes {
+        transact_unsigned_call_bytes(sub_client, transaction).await
+    } else {
+        transact_unsigned(sub_client, transaction)
+            .await
+            .map(|hash| hash.0.to_vec())
+    }
 }
 
 pub async fn join_or_exit_service_unsigned_by_evm(

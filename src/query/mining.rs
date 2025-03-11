@@ -2,7 +2,7 @@ use crate::bool::runtime_types::{
     primitive_types::U256,
     fp_account::AccountId20,
     pallet_facility::pallet::DIdentity,
-    pallet_mining::types::{DeviceInfo, MonitorState},
+    pallet_mining::types::{DeviceInfo, MonitorState, RegisterData},
 };
 use crate::BoolSubClient;
 use sp_core::H256 as Hash;
@@ -78,6 +78,18 @@ pub async fn device_identity_map(
     sub_client.query_storage(storage_query, at_block).await
 }
 
+pub async fn device_identity_map_iter(
+    sub_client: &BoolSubClient,
+    page_size: u32,
+    at_block: Option<Hash>,
+) -> Result<Vec<(Vec<u8>, Vec<u8>)>, subxt::Error> {
+    let storage_query = crate::bool::storage().mining().device_identity_map_root();
+    sub_client
+        .query_storage_value_iter(storage_query, page_size, at_block)
+        .await
+        .map(|res| res.into_iter().map(|(k, v)| (k.0[49..].to_vec(), v)).collect())
+}
+
 pub async fn device_monitor_state(
     sub_client: &BoolSubClient,
     id: Vec<u8>,
@@ -112,4 +124,37 @@ pub async fn device_data(
 ) -> Result<Option<Vec<u8>>, subxt::Error> {
     let store = crate::bool::storage().mining().device_data(did.clone());
     sub_client.query_storage(store, at_block).await
+}
+
+pub async fn devices_iter(
+    sub_client: &BoolSubClient,
+    page_size: u32,
+    at_block: Option<Hash>,
+) -> Result<Vec<DeviceInfo<AccountId20, u32, u128>>, subxt::Error> {
+    let store = crate::bool::storage().mining().devices_root();
+    sub_client
+    .query_storage_value_iter(store, page_size, at_block)
+    .await
+    .map(|res| res.into_iter().map(|(_, v)| v).collect())
+}
+
+pub async fn device_register_data(
+    sub_client: &BoolSubClient,
+    device_id: Vec<u8>,
+    at_block: Option<Hash>,
+) -> Result<Option<RegisterData>, subxt::Error> {
+    let store = crate::bool::storage().mining().device_register_data(device_id);
+    sub_client.query_storage(store, at_block).await
+}
+
+pub async fn device_register_data_iter(
+    sub_client: &BoolSubClient,
+    page_size: u32,
+    at_block: Option<Hash>,
+) -> Result<Vec<(Vec<u8>, RegisterData)>, subxt::Error> {
+    let store = crate::bool::storage().mining().device_register_data_root();
+    sub_client
+    .query_storage_value_iter(store, page_size, at_block)
+    .await
+    .map(|res| res.into_iter().map(|(k, v)| (k.0[49..].to_vec(), v)).collect())
 }

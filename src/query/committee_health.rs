@@ -45,3 +45,27 @@ pub async fn consensus_confirms(
     let store = crate::bool::storage().committee_health().consensus_confirms(epoch, stage);
     sub_client.query_storage(store, at_block).await
 }
+
+pub async fn submit_devices_whitelist(
+    sub_client: &BoolSubClient,
+    at_block: Option<Hash>,
+) -> Result<Vec<Vec<u8>>, subxt::Error> {
+    let store = crate::bool::storage().committee_health().submit_devices_whitelist();
+    sub_client.query_storage(store, at_block).await.map(|r| r.unwrap_or_default())
+}
+
+pub async fn submit_devices(
+    sub_client: &BoolSubClient,
+    at_block: Option<Hash>,
+) -> Result<Vec<Vec<u8>>, subxt::Error> {
+    let store = crate::bool::storage().committee_health().submit_devices();
+    sub_client.query_storage(store, at_block).await.map(|r| r.unwrap_or_default())
+}
+
+pub async fn submit_devices_size(
+    sub_client: &BoolSubClient,
+    at_block: Option<Hash>,
+) -> Result<u16, subxt::Error> {
+    let store = crate::bool::storage().committee_health().submit_devices_size();
+    sub_client.query_storage(store, at_block).await.map(|r| r.unwrap_or_default())
+}
