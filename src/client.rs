@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use anyhow::Result;
 use bnk_node_primitives::AccountId20;
+use codec::{Compact, Encode};
 use sp_core::H256 as Hash;
 use std::sync::Arc;
 use std::time::Instant;
@@ -14,7 +15,7 @@ use subxt::{
     Error, error::RpcError, storage::{address::Yes, StorageAddress, StorageKey},
 };
 use subxt::config::extrinsic_params::BaseExtrinsicParamsBuilder;
-use subxt::tx::Signer;
+use subxt::tx::{Signer, SubmittableExtrinsic};
 use crate::bool::runtime_types::ethereum::transaction::{EIP1559Transaction, TransactionV2 as EvmTransaction, TransactionAction};
 
 #[derive(Clone, Debug)]
@@ -260,6 +261,79 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
         Ok(tx_hash)
     }
 
+    pub async fn signed_tx_encode_to_bytes<Call: TxPayload + 'static + Send + Sync>(
+        &self,
+        call: Call,
+        nonce: Option<u32>,
+    ) -> Result<Vec<u8>, Error> {
+        let inner_nonce = self.inner_nonce.read().await;
+        let mut call_cache = self.call_cache.write().await;
+        let client = self.client.read().await;
+        let signer = self.signer.as_ref().ok_or_else(|| Error::Other("empty sk to sign and submit tx".to_string()))?;
+        let account_id = signer.account_id();
+
+        let target_nonce = if let Some(nonce) = nonce {
+            nonce
+        } else {
+            let chain_nonce = client.tx().account_nonce(account_id).await? as u32;
+            // clear cache for lower nonce
+            let old_nonce = call_cache.keys().filter(|v| v < &&chain_nonce).cloned().collect::<Vec<_>>();
+            for key in old_nonce {
+                log::trace!(target: "subxt::call_cache", "remove key {:?}", key);
+                call_cache.remove(&key);
+            }
+            if chain_nonce >= *inner_nonce {
+                chain_nonce
+            } else {
+                // Some errors occurred. ie. some tx with nonce not submit to chain seccessfully.
+                if *inner_nonce - chain_nonce >= self.cache_size_for_call {
+                    log::warn!(target: "subxt", "Some errors occurred to nonce inner {}, chain {}", *inner_nonce, chain_nonce);
+                    for key in chain_nonce ..*inner_nonce {
+                        if let Some((inner_call, by_evm, input, tip)) = call_cache.get_mut(&key) {
+                            let tx = if *by_evm {
+                                let mut eip1995_tx = <ethereum::EIP1559Transaction as codec::Decode>::decode(&mut input.as_slice())?;
+                                eip1995_tx.max_priority_fee_per_gas = eip1995_tx.max_priority_fee_per_gas + sp_core::U256::from(*tip + 100u128);
+                                let evm_tx = self.build_eip1559_tx_to_v2(eip1995_tx).map_err(|e| Error::Other(e))?;
+                                let evm_call = crate::bool::tx().ethereum().transact(evm_tx);
+                                client.tx().create_unsigned(&evm_call)?
+                            } else {
+                                client.tx().create_signed_with_nonce(
+                                    inner_call,
+                                    signer,
+                                    key,
+                                    BaseExtrinsicParamsBuilder::new().tip(*tip + 100),
+                                )?
+                            };
+                            let tx_hash = tx
+                                .submit()
+                                .await;
+                            log::warn!(target: "subxt", "re-submit call with nonce: {}, tip: {:?}, res: {:?}", key, *tip + 100, tx_hash);
+                            //update tip
+                            *tip += 100;
+                        } else {
+                            log::warn!(target: "subxt", "re-submit call not find nonce: {} in cache", key);
+                        }
+                    }
+                }
+                *inner_nonce
+            }
+        };
+
+        // 1. Validate this call against the current node metadata if the call comes
+        // with a hash allowing us to do so.
+        client.tx().validate(&call)?;
+
+        // 2. Gather the "additional" and "extra" params along with the encoded call data,
+        //    ready to be signed.
+        let partial_signed =
+            client.tx().create_partial_signed_with_nonce(&call, target_nonce, Default::default())?;
+
+        // 3. Sign and construct an extrinsic from these details.
+        let tx = partial_signed.sign(signer);
+
+        Ok(tx.into_encoded())
+    }
+
     pub async fn submit_extrinsic_without_signer<Call: TxPayload + 'static + Send + Sync>(
         &self,
         call: Call,
@@ -267,6 +341,48 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
         let timer = Instant::now();
         let client = self.client.read().await;
         let tx = client.tx().create_unsigned(&Box::new(call))?;
+        let tx_hash = tx.submit().await?;
+        if timer.elapsed().as_millis() > self.warn_time {
+            log::warn!(target: "subxt", "submit_extrinsic_without_signer exceed warn_time: {} millis", timer.elapsed().as_millis());
+        }
+        Ok(tx_hash)
+    }
+
+    pub async fn unsigned_tx_encode_to_bytes<Call: TxPayload + 'static + Send + Sync>(
+        &self,
+        call: Call,
+    ) -> Result<Vec<u8>, Error> {
+        let client = self.client.read().await;
+        // 1. Validate this call against the current node metadata if the call comes
+        // with a hash allowing us to do so.
+        client.tx().validate(&call)?;
+
+        // 2. Encode extrinsic
+        let extrinsic_encoded = {
+            let mut encoded_inner = Vec::new();
+            // transaction protocol version (4) (is not signed, so no 1 bit at the front).
+            4u8.encode_to(&mut encoded_inner);
+            // encode call data after this byte.
+            call.encode_call_data_to(&client.metadata(), &mut encoded_inner)?;
+            // now, prefix byte length:
+            let len = Compact(
+                u32::try_from(encoded_inner.len()).expect("extrinsic size expected to be <4GB"),
+            );
+            let mut encoded = Vec::new();
+            len.encode_to(&mut encoded);
+            encoded.extend(encoded_inner);
+            encoded
+        };
+        Ok(extrinsic_encoded)
+    }
+
+    pub async fn submit_extrinsic_without_signer_from_bytes(
+        &self,
+        call_bytes: Vec<u8>,
+    ) -> Result<Hash, Error> {
+        let timer = Instant::now();
+        let client = self.client.read().await;
+        let tx = SubmittableExtrinsic::from_bytes(client.clone(), call_bytes);
         let tx_hash = tx.submit().await?;
         if timer.elapsed().as_millis() > self.warn_time {
             log::warn!(target: "subxt", "submit_extrinsic_without_signer exceed warn_time: {} millis", timer.elapsed().as_millis());
@@ -598,4 +714,22 @@ async fn test_nonce_roll_back() {
     }
 }
 
+#[tokio::test]
+async fn test_submit_tx_by_call_bytes() {
+    std::env::set_var("RUST_LOG", "debug");
+    env_logger::init();
+    use std::str::FromStr;
+    use crate::BoolSubClient;
 
+    let url = "ws://127.0.0.1:9944".to_string();
+    let sk_bytes = hex::decode("5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133").unwrap(); // alice
+    let sk = SecretKey::parse_slice(&sk_bytes).unwrap();
+    let signer = BoolSigner::new(sk);
+    let client = BoolSubClient::new_from_signer(&url, Some(signer), None, Some(20)).await.unwrap();
+    let account = AccountId20::from_str("0x89Bdaf4AC10bC9d497BCa9a5cc37972026146E0E").unwrap();
+    let dst = crate::bool::runtime_types::fp_account::AccountId20(account.0);
+    let call = crate::bool::tx().balances().transfer_keep_alive(dst.clone().into(), 100000);
+    let call_bytes = client.signed_tx_encode_to_bytes(call, None).await.unwrap();
+    let res = client.submit_extrinsic_without_signer_from_bytes(call_bytes).await.map_err(|e| e.to_string());
+    log::info!("submit res: {res:?}");
+}

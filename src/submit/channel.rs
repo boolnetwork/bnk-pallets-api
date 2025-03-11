@@ -70,6 +70,19 @@ pub async fn report_result(
     client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
 }
 
+pub async fn report_result_call_bytes(
+    client: &BoolSubClient,
+    pk: Vec<u8>,
+    sig: Vec<u8>,
+    cid: u32,
+    fork_id: u8,
+    hash: Hash,
+    signature: Vec<u8>,
+) -> Result<Vec<u8>, String> {
+    let call = crate::bool::tx().channel().submit_tx_sign_result(pk, sig, cid, fork_id, hash, signature);
+    client.unsigned_tx_encode_to_bytes(call).await.map_err(handle_custom_error)
+}
+
 pub async fn request_sign(
     client: &BoolSubClient,
     cid: u32,
@@ -160,6 +173,28 @@ pub async fn submit_refresh_result(
     client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
 }
 
+pub async fn submit_refresh_result_call_bytes(
+    client: &BoolSubClient,
+    cid: u32,
+    inscription_tx: Vec<u8>,
+    inscription_pos: u8,
+    sender_pk: Vec<u8>,
+    sender_sig: Vec<u8>,
+    cmt_sig: Vec<u8>,
+    fork_id: u8,
+) -> Result<Vec<u8>, String> {
+    let call = crate::bool::tx().channel().submit_refresh_result(
+        cid,
+        inscription_tx,
+        inscription_pos,
+        sender_pk,
+        sender_sig,
+        cmt_sig,
+        fork_id,
+    );
+    client.unsigned_tx_encode_to_bytes(call).await.map_err(handle_custom_error)
+}
+
 pub async fn sign_issue_xudt(
     client: &BoolSubClient,
     cid: u32,
@@ -195,6 +230,25 @@ pub async fn submit_issue_xudt_sign_result(
     client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
 }
 
+pub async fn submit_issue_xudt_sign_result_call_bytes(
+    client: &BoolSubClient,
+    cid: u32,
+    args_of_token: Vec<u8>,
+    pk: Vec<u8>,
+    sig: Vec<u8>,
+    fork_id: u8,
+    signature: Vec<u8>,
+) -> Result<Vec<u8>, String> {
+    let call = crate::bool::tx().channel().submit_issue_xudt_sign_result(
+        cid,
+        args_of_token,
+        pk,
+        sig,
+        fork_id,
+        signature,
+    );
+    client.unsigned_tx_encode_to_bytes(call).await.map_err(handle_custom_error)
+}
 
 pub async fn sync_issue_xudt_result(
     client: &BoolSubClient,
@@ -246,6 +300,26 @@ pub async fn submit_uid_sign_result(
     client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
 }
 
+pub async fn submit_uid_sign_result_call_bytes(
+    client: &BoolSubClient,
+    cid: u32,
+    uid: Vec<u8>,
+    pk: Vec<u8>,
+    sig: Vec<u8>,
+    fork_id: u8,
+    signature: Vec<u8>,
+) -> Result<Vec<u8>, String> {
+    let call = crate::bool::tx().channel().submit_uid_sign_result(
+        cid,
+        uid,
+        pk,
+        sig,
+        fork_id,
+        signature,
+    );
+    client.unsigned_tx_encode_to_bytes(call).await.map_err(handle_custom_error)
+}
+
 pub async fn request_to_sign_forced_withdrawal(
     client: &BoolSubClient,
     tx_nonce: u128,
@@ -278,4 +352,24 @@ pub async fn finish_forced_withdrawal_result(
         fork_id,
     );
     client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
+}
+
+pub async fn finish_forced_withdrawal_result_call_bytes(
+    client: &BoolSubClient,
+    cid: u32,
+    tx_nonce: u128,
+    sender_pk: Vec<u8>,
+    sender_sig: Vec<u8>,
+    cmt_sig: Vec<u8>,
+    fork_id: u8,
+) -> Result<Vec<u8>, String> {
+    let call = crate::bool::tx().channel().finish_forced_withdrawal(
+        cid,
+        tx_nonce,
+        sender_pk,
+        sender_sig,
+        cmt_sig,
+        fork_id,
+    );
+    client.unsigned_tx_encode_to_bytes(call).await.map_err(handle_custom_error)
 }

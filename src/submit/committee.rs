@@ -24,6 +24,15 @@ pub async fn enter_epoch(
     client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
 }
 
+pub async fn enter_epoch_call_bytes(
+    client: &BoolSubClient,
+    epoch: u64,
+    proofs: Vec<(Vec<u8>, Vec<u8>, Vec<u8>)>,
+) -> Result<Vec<u8>, String> {
+    let call = crate::bool::tx().committee().enter_epoch(epoch, proofs);
+    client.unsigned_tx_encode_to_bytes(call).await.map_err(handle_custom_error)
+}
+
 pub async fn expose_identity(
     client: &BoolSubClient,
     identity: Vec<u8>,
@@ -38,6 +47,22 @@ pub async fn expose_identity(
         ident_sig,
     );
     client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
+}
+
+pub async fn expose_identity_call_bytes(
+    client: &BoolSubClient,
+    identity: Vec<u8>,
+    joins: Vec<(u32, Vec<(u8, u32, u32)>)>,
+    device_id: Vec<u8>,
+    ident_sig: Vec<u8>,
+) -> Result<Vec<u8>, String> {
+    let call = crate::bool::tx().committee().expose_identity(
+        identity,
+        joins,
+        device_id,
+        ident_sig,
+    );
+    client.unsigned_tx_encode_to_bytes(call).await.map_err(handle_custom_error)
 }
 
 pub async fn active_committee(
@@ -65,4 +90,16 @@ pub async fn report_change(
     client.submit_extrinsic_without_signer(call).await.map_err(handle_custom_error)
 }
 
-
+pub async fn report_change_call_bytes(
+    client: &BoolSubClient,
+    pk: Vec<u8>,
+    sig: Vec<u8>,
+    cid: u32,
+    epoch: u32,
+    fork_id: u8,
+    signature: Vec<u8>,
+    pubkey: Vec<u8>,
+) -> Result<Vec<u8>, String> {
+    let call = crate::bool::tx().committee().report_change(pk, sig, cid, epoch, fork_id, signature, pubkey);
+    client.unsigned_tx_encode_to_bytes(call).await.map_err(handle_custom_error)
+}
