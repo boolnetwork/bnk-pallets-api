@@ -175,7 +175,7 @@ impl EventWatcher {
                                                             None
                                                         }
                                                     } else {
-                                                        Some(event)
+                                                        None
                                                     }
                                                 }
                                             }
