@@ -69,3 +69,11 @@ pub async fn simple_key(
     let storage_query = crate::bool::storage().configs().simple_key();
     sub_client.query_storage(storage_query, at_block).await.map(|r| r.unwrap_or_default())
 }
+
+pub async fn device_heartbeat_interval(
+    sub_client: &BoolSubClient,
+    at_block: Option<Hash>,
+) -> Result<Option<u64>, subxt::Error> {
+    let store = crate::bool::storage().configs().device_heartbeat_interval();
+    sub_client.query_storage(store, at_block).await
+}
