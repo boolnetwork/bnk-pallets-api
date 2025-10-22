@@ -1,4 +1,3 @@
-#![deny(unused_crate_dependencies)]
 pub mod client;
 pub mod event_watcher;
 pub mod monitor_rpc;
@@ -7,6 +6,8 @@ pub mod submit;
 pub mod types;
 pub mod watcher_rpc;
 
+// mod mth;
+// mod bnk_app_node;
 pub use crate::client::BoolConfig;
 use bnk_node_primitives::CustomError;
 pub use bnk_node_primitives;
@@ -294,12 +295,12 @@ impl std::str::FromStr for RpcEvent {
     }
 }
 
-pub(crate) fn convert_to_custom_error(custom: u8) -> String {
+pub fn convert_to_custom_error(custom: u8) -> String {
     let err = CustomError::from_num(custom);
     err.to_string()
 }
 
-pub(crate) fn handle_custom_error(error: Error) -> String {
+pub fn handle_custom_error(error: Error) -> String {
     if let Error::Rpc(RpcError::ClientError(e)) = error {
         let err = e.to_string();
         parse_custom_err_from_string_err(err)
@@ -327,4 +328,38 @@ pub fn no_prefix<T: AsRef<str>>(data: T) -> String {
         .strip_prefix("0x")
         .unwrap_or(data.as_ref())
         .to_string()
+}
+
+#[test]
+fn test_btree_map_range() {
+    use std::ops::Bound;
+    use std::collections::BTreeMap;
+
+    let mut tree = BTreeMap::new();
+    tree.insert("1111", 1111u32);
+    tree.insert("1112", 1112u32);
+    tree.insert("1121", 1121u32);
+    tree.insert("1122", 1122u32);
+    tree.insert("1123", 1123u32);
+    tree.insert("11235", 11235u32);
+
+    let prefix = "112";
+    let mut previous_key = prefix.to_string();
+    let next_key = |previous_key: &str| {
+        let range = (Bound::Excluded(previous_key), Bound::<&str>::Unbounded);
+        tree.range::<&str, _>(range)
+        .map(|(k, _)| k)
+        .find_map(|k| Some(k.to_string()))
+    };
+    loop {
+        let maybe_next = next_key(previous_key.as_str()).filter(|n| n.starts_with(prefix));
+        match maybe_next {
+            Some(key) => {
+                previous_key = key.clone();
+                let value = tree.get(key.as_str()).unwrap();
+                println!("get 112: {key} {value:?}");
+            },
+            None => break,
+        }
+    }
 }

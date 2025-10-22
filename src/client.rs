@@ -1,21 +1,17 @@
+use std::borrow::Cow;
 use std::collections::HashMap;
 use anyhow::Result;
 use bnk_node_primitives::AccountId20;
 use codec::{Compact, Encode};
-use sp_core::H256 as Hash;
+use sp_core::{blake2_256, H256 as Hash};
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::RwLock;
-use subxt::config::{
-    polkadot::PolkadotExtrinsicParams,
-    substrate::{BlakeTwo256, SubstrateHeader},
-};
-use subxt::{
-    OnlineClient, Config, tx::{TxPayload, TxProgress, SecretKey, BoolSigner}, JsonRpseeError,
-    Error, error::RpcError, storage::{address::Yes, StorageAddress, StorageKey},
-};
+use subxt::config::{polkadot::PolkadotExtrinsicParams, substrate::{BlakeTwo256, SubstrateHeader}, ExtrinsicParams};
+use subxt::{OnlineClient, Config, tx::{TxPayload, TxProgress, SecretKey, BoolSigner}, JsonRpseeError, Error, error::RpcError, storage::{address::Yes, StorageAddress, StorageKey}, rpc_params};
 use subxt::config::extrinsic_params::BaseExtrinsicParamsBuilder;
-use subxt::tx::{Signer, SubmittableExtrinsic};
+use subxt::rpc::types;
+use subxt::tx::{Signer, SubmittableExtrinsic, TxClient};
 use crate::bool::runtime_types::ethereum::transaction::{EIP1559Transaction, TransactionV2 as EvmTransaction, TransactionAction};
 
 #[derive(Clone, Debug)]
@@ -346,6 +342,152 @@ impl SubClient<BoolConfig, BoolSigner<BoolConfig>> {
             log::warn!(target: "subxt", "submit_extrinsic_without_signer exceed warn_time: {} millis", timer.elapsed().as_millis());
         }
         Ok(tx_hash)
+    }
+
+    pub async fn submit_extrinsics_with_signer<Call: TxPayload + 'static + Send + Sync>(
+        &self,
+        signer: &BoolSigner<BoolConfig>,
+        calls: Vec<(Call, <BoolConfig as Config>::Index, <<BoolConfig as Config>::ExtrinsicParams as ExtrinsicParams<<BoolConfig as Config>::Index, <BoolConfig as Config>::Hash>>::OtherParams)>,
+    ) -> Result<Vec<Hash>, Error> {
+        let timer = Instant::now();
+        let tx_client = self.client.read().await.tx();
+        let encoded_extrinsics = self.create_signed_multi_with_nonce_and_params(signer, &tx_client, &Box::new(calls)).await?;
+        let tx_resutls = self.submit_multi(encoded_extrinsics).await?;
+        if timer.elapsed().as_millis() > self.warn_time {
+            log::warn!(target: "subxt", "submit_extrinsics_with_signer exceed warn_time: {} millis", timer.elapsed().as_millis());
+        }
+        Ok(tx_resutls)
+    }
+
+    pub async fn submit_extrinsics_without_signer<Call: TxPayload + 'static + Send + Sync>(
+        &self,
+        call: Vec<Call>,
+    ) -> Result<Vec<Hash>, Error> {
+        let timer = Instant::now();
+        let tx_client = self.client.read().await.tx();
+        let encoded_extrinsics = self.create_unsigned_multi(&tx_client, &Box::new(call)).await?;
+        let tx_resutls = self.submit_multi(encoded_extrinsics).await?;
+        if timer.elapsed().as_millis() > self.warn_time {
+            log::warn!(target: "subxt", "submit_extrinsics_without_signer exceed warn_time: {} millis", timer.elapsed().as_millis());
+        }
+        Ok(tx_resutls)
+    }
+
+    pub async fn create_signed_multi_with_nonce_and_params<Call, S: Signer<BoolConfig>>(
+        &self,
+        signer: &S,
+        tx_client: &TxClient<BoolConfig, OnlineClient<BoolConfig>>,
+        call: &Vec<(Call, <BoolConfig as Config>::Index, <<BoolConfig as Config>::ExtrinsicParams as ExtrinsicParams<<BoolConfig as Config>::Index, <BoolConfig as Config>::Hash>>::OtherParams)>,
+    ) -> std::result::Result<Vec<u8>, Error>
+    where
+        Call: TxPayload,
+    {
+        let runtime_version = self.client.read().await.runtime_version();
+        let genesis_hash = self.client.read().await.genesis_hash();
+        let mut encoded_inner = Vec::new();
+        for (c, account_nonce, other_params) in call {
+            // 1. Validate this call against the current node metadata if the call comes
+            // with a hash allowing us to do so.
+            tx_client.validate(c)?;
+            // 2. Gather the "additional" and "extra" params along with the encoded call data,
+            //    ready to be signed.
+            // 2. SCALE encode call data to bytes (pallet u8, call u8, call params).
+            let call_data = tx_client.call_data(c)?;
+
+            // 3. Construct our custom additional/extra params.
+            let additional_and_extra_params = {
+                // Obtain spec version and transaction version from the runtime version of the client.
+                <<BoolConfig as Config>::ExtrinsicParams as ExtrinsicParams<<BoolConfig as Config>::Index, <BoolConfig as Config>::Hash>>::new(
+                    runtime_version.spec_version,
+                    runtime_version.transaction_version,
+                    *account_nonce,
+                    genesis_hash,
+                    *other_params,
+                )
+            };
+            // 3. Sign and construct an extrinsic from these details.
+            // Given our signer, we can sign the payload representing this extrinsic.
+            let mut bytes = call_data.clone();
+            additional_and_extra_params.encode_extra_to(&mut bytes);
+            additional_and_extra_params.encode_additional_to(&mut bytes);
+            let signature = if bytes.len() > 256 {
+                signer.sign(&Cow::Borrowed(blake2_256(&bytes).as_ref()))
+            } else {
+                signer.sign(&Cow::Owned(bytes))
+            };
+
+            let mut encoded_call_inner = Vec::new();
+            // "is signed" + transaction protocol version (4)
+            (0b10000000 + 4u8).encode_to(&mut encoded_call_inner);
+            // from address for signature
+            signer.address().encode_to(&mut encoded_call_inner);
+            // the signature
+            signature.encode_to(&mut encoded_call_inner);
+            // attach custom extra params
+            additional_and_extra_params.encode_extra_to(&mut encoded_call_inner);
+            // and now, call data (remembering that it's been encoded already and just needs appending)
+            encoded_call_inner.extend(&call_data);
+            // now, prefix byte length:
+            let mut encoded_call = Vec::new();
+            let len = Compact(
+                u32::try_from(encoded_call_inner.len()).expect("extrinsic size expected to be <4GB"),
+            );
+            len.encode_to(&mut encoded_call);
+            encoded_call.extend(encoded_call_inner);
+            encoded_inner.extend(encoded_call);
+        }
+        let mut extrinsics = Vec::new();
+        Compact(call.len() as u32).encode_to(&mut extrinsics);
+        extrinsics.extend(encoded_inner);
+        // Wrap in Encoded to ensure that any more "encode" calls leave it in the right state.
+        Ok(extrinsics)
+    }
+
+    pub async fn submit_multi(&self, encoded_extrinsics: Vec<u8>) -> std::result::Result<Vec<<BoolConfig as Config>::Hash>, Error> {
+        let bytes: types::Bytes = encoded_extrinsics.into();
+        let params = rpc_params![bytes];
+        self
+            .client
+            .read()
+            .await
+            .rpc()
+            .request("author_submitExtrinsics", params)
+            .await
+    }
+
+    pub async fn create_unsigned_multi<Call>(
+        &self,
+        tx_client: &TxClient<BoolConfig, OnlineClient<BoolConfig>>,
+        call: &Vec<Call>,
+    ) -> std::result::Result<Vec<u8>, Error>
+    where
+        Call: TxPayload,
+    {
+        let metadata = self.client.read().await.metadata();
+        let mut encoded_inner = Vec::new();
+        for c in call {
+            // 1. Validate this call against the current node metadata if the call comes
+            // with a hash allowing us to do so.
+            tx_client.validate(c)?;
+            let mut encoded_call_inner = Vec::new();
+            // transaction protocol version (4) (is not signed, so no 1 bit at the front).
+            4u8.encode_to(&mut encoded_call_inner);
+            // encode call data after this byte.
+            c.encode_call_data_to(&metadata, &mut encoded_call_inner)?;
+            // now, prefix byte length:
+            let mut encoded_call = Vec::new();
+            let len = Compact(
+                u32::try_from(encoded_call_inner.len()).expect("extrinsic size expected to be <4GB"),
+            );
+            len.encode_to(&mut encoded_call);
+            encoded_call.extend(encoded_call_inner);
+            encoded_inner.extend(encoded_call);
+        }
+        let mut extrinsics = Vec::new();
+        Compact(call.len() as u32).encode_to(&mut extrinsics);
+        extrinsics.extend(encoded_inner);
+        // Wrap in Encoded to ensure that any more "encode" calls leave it in the right state.
+        Ok(extrinsics)
     }
 
     pub async fn unsigned_tx_encode_to_bytes<Call: TxPayload + 'static + Send + Sync>(

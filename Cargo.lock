@@ -80,12 +80,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "allocator-api2"
-version = "0.2.21"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
-
-[[package]]
 name = "android-tzdata"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -131,7 +125,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "21cc1548309245035eb18aa7f0967da6bc65587005170c56e6ef2788a4cf3f4e"
 dependencies = [
  "include_dir",
- "itertools 0.10.5",
+ "itertools",
  "proc-macro-error",
  "proc-macro2",
  "quote",
@@ -144,9 +138,9 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fb00293ba84f51ce3bd026bd0de55899c4e68f0a39a5728cebae3a73ffdc0a4f"
 dependencies = [
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
- "ark-std 0.4.0",
+ "ark-ec",
+ "ark-ff",
+ "ark-std",
 ]
 
 [[package]]
@@ -156,9 +150,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "20c7021f180a0cbea0380eba97c2af3c57074cdaffe0eef7e840e1c9f2841e55"
 dependencies = [
  "ark-bls12-377",
- "ark-ec 0.4.2",
+ "ark-ec",
  "ark-models-ext",
- "ark-std 0.4.0",
+ "ark-std",
 ]
 
 [[package]]
@@ -167,10 +161,10 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c775f0d12169cba7aae4caeb547bb6a50781c7449a8aa53793827c9ec4abf488"
 dependencies = [
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
+ "ark-ec",
+ "ark-ff",
+ "ark-serialize",
+ "ark-std",
 ]
 
 [[package]]
@@ -180,11 +174,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1dc4b3d08f19e8ec06e949712f95b8361e43f1391d94f65e4234df03480631c"
 dependencies = [
  "ark-bls12-381",
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
+ "ark-ec",
+ "ark-ff",
  "ark-models-ext",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
+ "ark-serialize",
+ "ark-std",
 ]
 
 [[package]]
@@ -194,9 +188,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2e0605daf0cc5aa2034b78d008aaf159f56901d92a52ee4f6ecdfdac4f426700"
 dependencies = [
  "ark-bls12-377",
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
- "ark-std 0.4.0",
+ "ark-ec",
+ "ark-ff",
+ "ark-std",
 ]
 
 [[package]]
@@ -206,10 +200,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ccee5fba47266f460067588ee1bf070a9c760bf2050c1c509982c5719aadb4f2"
 dependencies = [
  "ark-bw6-761",
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
+ "ark-ec",
+ "ark-ff",
  "ark-models-ext",
- "ark-std 0.4.0",
+ "ark-std",
 ]
 
 [[package]]
@@ -218,36 +212,15 @@ version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "defd9a439d56ac24968cca0571f598a61bc8c55f71d50a89cda591cb750670ba"
 dependencies = [
- "ark-ff 0.4.2",
- "ark-poly 0.4.2",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
+ "ark-ff",
+ "ark-poly",
+ "ark-serialize",
+ "ark-std",
  "derivative",
  "hashbrown 0.13.2",
- "itertools 0.10.5",
+ "itertools",
  "num-traits",
  "rayon",
- "zeroize",
-]
-
-[[package]]
-name = "ark-ec"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43d68f2d516162846c1238e755a7c4d131b892b70cc70c471a8e3ca3ed818fce"
-dependencies = [
- "ahash 0.8.11",
- "ark-ff 0.5.0",
- "ark-poly 0.5.0",
- "ark-serialize 0.5.0",
- "ark-std 0.5.0",
- "educe",
- "fnv",
- "hashbrown 0.15.0",
- "itertools 0.13.0",
- "num-bigint",
- "num-integer",
- "num-traits",
  "zeroize",
 ]
 
@@ -258,9 +231,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b10d901b9ac4b38f9c32beacedfadcdd64e46f8d7f8e88c1ae1060022cf6f6c6"
 dependencies = [
  "ark-bls12-377",
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
- "ark-std 0.4.0",
+ "ark-ec",
+ "ark-ff",
+ "ark-std",
 ]
 
 [[package]]
@@ -269,11 +242,11 @@ version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "524a4fb7540df2e1a8c2e67a83ba1d1e6c3947f4f9342cc2359fc2e789ad731d"
 dependencies = [
- "ark-ec 0.4.2",
+ "ark-ec",
  "ark-ed-on-bls12-377",
- "ark-ff 0.4.2",
+ "ark-ff",
  "ark-models-ext",
- "ark-std 0.4.0",
+ "ark-std",
 ]
 
 [[package]]
@@ -283,9 +256,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f9cde0f2aa063a2a5c28d39b47761aa102bda7c13c84fc118a61b87c7b2f785c"
 dependencies = [
  "ark-bls12-381",
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
- "ark-std 0.4.0",
+ "ark-ec",
+ "ark-ff",
+ "ark-std",
 ]
 
 [[package]]
@@ -294,11 +267,11 @@ version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d15185f1acb49a07ff8cbe5f11a1adc5a93b19e211e325d826ae98e98e124346"
 dependencies = [
- "ark-ec 0.4.2",
+ "ark-ec",
  "ark-ed-on-bls12-381-bandersnatch",
- "ark-ff 0.4.2",
+ "ark-ff",
  "ark-models-ext",
- "ark-std 0.4.0",
+ "ark-std",
 ]
 
 [[package]]
@@ -307,37 +280,17 @@ version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec847af850f44ad29048935519032c33da8aa03340876d351dfab5660d2966ba"
 dependencies = [
- "ark-ff-asm 0.4.2",
- "ark-ff-macros 0.4.2",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
+ "ark-ff-asm",
+ "ark-ff-macros",
+ "ark-serialize",
+ "ark-std",
  "derivative",
  "digest 0.10.7",
- "itertools 0.10.5",
+ "itertools",
  "num-bigint",
  "num-traits",
  "paste",
  "rustc_version",
- "zeroize",
-]
-
-[[package]]
-name = "ark-ff"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a177aba0ed1e0fbb62aa9f6d0502e9b46dad8c2eab04c14258a1212d2557ea70"
-dependencies = [
- "ark-ff-asm 0.5.0",
- "ark-ff-macros 0.5.0",
- "ark-serialize 0.5.0",
- "ark-std 0.5.0",
- "arrayvec",
- "digest 0.10.7",
- "educe",
- "itertools 0.13.0",
- "num-bigint",
- "num-traits",
- "paste",
  "zeroize",
 ]
 
@@ -349,16 +302,6 @@ checksum = "3ed4aa4fe255d0bc6d79373f7e31d2ea147bcf486cba1be5ba7ea85abdb92348"
 dependencies = [
  "quote",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "ark-ff-asm"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62945a2f7e6de02a31fe400aa489f0e0f5b2502e69f95f853adb82a96c7a6b60"
-dependencies = [
- "quote",
- "syn 2.0.90",
 ]
 
 [[package]]
@@ -375,28 +318,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "ark-ff-macros"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09be120733ee33f7693ceaa202ca41accd5653b779563608f1234f78ae07c4b3"
-dependencies = [
- "num-bigint",
- "num-traits",
- "proc-macro2",
- "quote",
- "syn 2.0.90",
-]
-
-[[package]]
 name = "ark-models-ext"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3e9eab5d4b5ff2f228b763d38442adc9b084b0a465409b059fac5c2308835ec2"
 dependencies = [
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
+ "ark-ec",
+ "ark-ff",
+ "ark-serialize",
+ "ark-std",
  "derivative",
 ]
 
@@ -406,26 +336,11 @@ version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d320bfc44ee185d899ccbadfa8bc31aab923ce1558716e1997a1e74057fe86bf"
 dependencies = [
- "ark-ff 0.4.2",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
+ "ark-ff",
+ "ark-serialize",
+ "ark-std",
  "derivative",
  "hashbrown 0.13.2",
-]
-
-[[package]]
-name = "ark-poly"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "579305839da207f02b89cd1679e50e67b4331e2f9294a57693e5051b7703fe27"
-dependencies = [
- "ahash 0.8.11",
- "ark-ff 0.5.0",
- "ark-serialize 0.5.0",
- "ark-std 0.5.0",
- "educe",
- "fnv",
- "hashbrown 0.15.0",
 ]
 
 [[package]]
@@ -434,10 +349,10 @@ version = "0.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5f69c00b3b529be29528a6f2fd5fa7b1790f8bed81b9cdca17e326538545a179"
 dependencies = [
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
+ "ark-ec",
+ "ark-ff",
+ "ark-serialize",
+ "ark-std",
  "parity-scale-codec",
  "scale-info",
 ]
@@ -447,11 +362,11 @@ name = "ark-secret-scalar"
 version = "0.0.2"
 source = "git+https://github.com/w3f/ring-vrf?rev=e9782f9#e9782f938629c90f3adb3fff2358bc8d1386af3e"
 dependencies = [
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
- "ark-transcript 0.0.2",
+ "ark-ec",
+ "ark-ff",
+ "ark-serialize",
+ "ark-std",
+ "ark-transcript",
  "digest 0.10.7",
  "getrandom_or_panic",
  "zeroize",
@@ -463,21 +378,8 @@ version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "adb7b85a02b83d2f22f89bd5cac66c9c89474240cb6207cb1efc16d098e822a5"
 dependencies = [
- "ark-serialize-derive 0.4.2",
- "ark-std 0.4.0",
- "digest 0.10.7",
- "num-bigint",
-]
-
-[[package]]
-name = "ark-serialize"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f4d068aaf107ebcd7dfb52bc748f8030e0fc930ac8e360146ca54c1203088f7"
-dependencies = [
- "ark-serialize-derive 0.5.0",
- "ark-std 0.5.0",
- "arrayvec",
+ "ark-serialize-derive",
+ "ark-std",
  "digest 0.10.7",
  "num-bigint",
 ]
@@ -494,17 +396,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ark-serialize-derive"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "213888f660fddcca0d257e88e54ac05bca01885f258ccdf695bafd77031bb69d"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.90",
-]
-
-[[package]]
 name = "ark-std"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -516,36 +407,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "ark-std"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "246a225cc6131e9ee4f24619af0f19d67761fff15d7ccc22e42b80846e69449a"
-dependencies = [
- "num-traits",
- "rand 0.8.5",
-]
-
-[[package]]
 name = "ark-transcript"
 version = "0.0.2"
 source = "git+https://github.com/w3f/ring-vrf?rev=e9782f9#e9782f938629c90f3adb3fff2358bc8d1386af3e"
 dependencies = [
- "ark-ff 0.4.2",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
- "digest 0.10.7",
- "rand_core 0.6.4",
- "sha3 0.10.8",
-]
-
-[[package]]
-name = "ark-transcript"
-version = "0.0.3"
-source = "git+https://github.com/w3f/ark-transcript#37a169f587f45d67e5afad143bc2a7c9c864884b"
-dependencies = [
- "ark-ff 0.5.0",
- "ark-serialize 0.5.0",
- "ark-std 0.5.0",
+ "ark-ff",
+ "ark-serialize",
+ "ark-std",
  "digest 0.10.7",
  "rand_core 0.6.4",
  "sha3 0.10.8",
@@ -638,11 +506,11 @@ version = "0.0.4"
 source = "git+https://github.com/w3f/ring-vrf?rev=e9782f9#e9782f938629c90f3adb3fff2358bc8d1386af3e"
 dependencies = [
  "ark-bls12-381",
- "ark-ec 0.4.2",
+ "ark-ec",
  "ark-ed-on-bls12-381-bandersnatch",
- "ark-ff 0.4.2",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
+ "ark-ff",
+ "ark-serialize",
+ "ark-std",
  "dleq_vrf",
  "fflonk",
  "merlin",
@@ -893,12 +761,15 @@ dependencies = [
  "env_logger 0.9.3",
  "ethereum 0.14.0",
  "hex",
+ "indexmap 2.11.3",
  "libsecp256k1 0.3.5",
  "log",
  "parity-scale-codec",
  "precompile-utils",
  "serde",
  "sp-core",
+ "sp-io",
+ "sp-keyring",
  "sp-runtime",
  "subxt",
  "tokio",
@@ -948,9 +819,9 @@ checksum = "79296716171880943b8470b5f8d03aa55eb2e645a4874bdbb28adb49162e012c"
 
 [[package]]
 name = "byte-slice-cast"
-version = "1.2.2"
+version = "1.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3ac9f8b63eca6fd385229b3675f6cc0dc5c8a5c8a54a59d4f52ffd670d87b0c"
+checksum = "7575182f7272186991736b70173b0ea045398f984bf5ebbb3804736ce1330c9d"
 
 [[package]]
 name = "byte-tools"
@@ -1021,16 +892,17 @@ dependencies = [
 [[package]]
 name = "common"
 version = "0.1.0"
-source = "git+https://github.com/w3f/ring-proof#51c5ad35dffa3f1c990a3003637b388a8d27414d"
+source = "git+https://www.github.com/w3f/ring-proof?rev=b273d33f9981e2bb3375ab45faeb537f7ee35224#b273d33f9981e2bb3375ab45faeb537f7ee35224"
 dependencies = [
- "ark-ec 0.5.0",
- "ark-ff 0.5.0",
- "ark-poly 0.5.0",
- "ark-serialize 0.5.0",
- "ark-std 0.5.0",
+ "ark-ec",
+ "ark-ff",
+ "ark-poly",
+ "ark-serialize",
+ "ark-std",
  "fflonk",
  "getrandom_or_panic",
- "rand_core 0.6.4",
+ "merlin",
+ "rand_chacha 0.3.1",
 ]
 
 [[package]]
@@ -1430,13 +1302,13 @@ name = "dleq_vrf"
 version = "0.0.2"
 source = "git+https://github.com/w3f/ring-vrf?rev=e9782f9#e9782f938629c90f3adb3fff2358bc8d1386af3e"
 dependencies = [
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
+ "ark-ec",
+ "ark-ff",
  "ark-scale",
  "ark-secret-scalar",
- "ark-serialize 0.4.2",
- "ark-std 0.4.0",
- "ark-transcript 0.0.2",
+ "ark-serialize",
+ "ark-std",
+ "ark-transcript",
  "arrayvec",
  "zeroize",
 ]
@@ -1548,18 +1420,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "educe"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d7bc049e1bd8cdeb31b68bbd586a9464ecf9f3944af3958a7a9d0f8b9799417"
-dependencies = [
- "enum-ordinalize",
- "proc-macro2",
- "quote",
- "syn 2.0.90",
-]
-
-[[package]]
 name = "either"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1591,26 +1451,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "75030f3c4f45dafd7586dd6780965a8c7e8e285a5ecb86713e63a79c5b2766f3"
 dependencies = [
  "cfg-if",
-]
-
-[[package]]
-name = "enum-ordinalize"
-version = "4.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fea0dcfa4e54eeb516fe454635a95753ddd39acda650ce703031c6973e315dd5"
-dependencies = [
- "enum-ordinalize-derive",
-]
-
-[[package]]
-name = "enum-ordinalize-derive"
-version = "4.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d28318a75d4aead5c4db25382e8ef717932d0346600cacae6357eb5941bc5ff"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.90",
 ]
 
 [[package]]
@@ -1842,14 +1682,14 @@ dependencies = [
 
 [[package]]
 name = "fflonk"
-version = "0.1.1"
-source = "git+https://github.com/w3f/fflonk#1c97672e8d09321babda3fea795352f982e9c2d5"
+version = "0.1.0"
+source = "git+https://www.github.com/w3f/fflonk?rev=1e854f35e9a65d08b11a86291405cdc95baa0a35#1e854f35e9a65d08b11a86291405cdc95baa0a35"
 dependencies = [
- "ark-ec 0.5.0",
- "ark-ff 0.5.0",
- "ark-poly 0.5.0",
- "ark-serialize 0.5.0",
- "ark-std 0.5.0",
+ "ark-ec",
+ "ark-ff",
+ "ark-poly",
+ "ark-serialize",
+ "ark-std",
  "merlin",
 ]
 
@@ -1934,7 +1774,7 @@ dependencies = [
 [[package]]
 name = "frame-benchmarking"
 version = "4.0.0-dev"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "frame-support",
  "frame-support-procedural",
@@ -1983,7 +1823,7 @@ dependencies = [
 [[package]]
 name = "frame-support"
 version = "4.0.0-dev"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "aquamarine",
  "array-bytes",
@@ -2024,14 +1864,14 @@ dependencies = [
 [[package]]
 name = "frame-support-procedural"
 version = "4.0.0-dev"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "Inflector",
  "cfg-expr",
  "derive-syn-parse 0.1.5",
  "expander",
  "frame-support-procedural-tools",
- "itertools 0.10.5",
+ "itertools",
  "macro_magic",
  "proc-macro-warning",
  "proc-macro2",
@@ -2043,7 +1883,7 @@ dependencies = [
 [[package]]
 name = "frame-support-procedural-tools"
 version = "4.0.0-dev"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "frame-support-procedural-tools-derive",
  "proc-macro-crate 3.2.0",
@@ -2055,7 +1895,7 @@ dependencies = [
 [[package]]
 name = "frame-support-procedural-tools-derive"
 version = "3.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2065,7 +1905,7 @@ dependencies = [
 [[package]]
 name = "frame-system"
 version = "4.0.0-dev"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "cfg-if",
  "docify",
@@ -2287,7 +2127,7 @@ dependencies = [
  "futures-sink",
  "futures-util",
  "http",
- "indexmap 2.6.0",
+ "indexmap 2.11.3",
  "slab",
  "tokio",
  "tokio-util",
@@ -2338,9 +2178,6 @@ name = "hashbrown"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e087f84d4f86bf4b218b927129862374b72199ae7d8657835f1e89000eea4fb"
-dependencies = [
- "allocator-api2",
-]
 
 [[package]]
 name = "heck"
@@ -2636,13 +2473,13 @@ dependencies = [
 
 [[package]]
 name = "impl-trait-for-tuples"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "11d7a9f6330b71fea57921c9b61c47ee6e84f72d394754eff6163ae67e7395eb"
+checksum = "a0eb5a3343abf848c0984fe4604b2b105da9539376e24fc0a3b0007411ae4fd9"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn 2.0.90",
 ]
 
 [[package]]
@@ -2677,9 +2514,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.6.0"
+version = "2.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "707907fe3c25f5424cce2cb7e1cbcafee6bdbe735ca90ef77c29e84591e5b9da"
+checksum = "92119844f513ffa41556430369ab02c295a3578af21cf945caa3e9e0c2481ac3"
 dependencies = [
  "equivalent",
  "hashbrown 0.15.0",
@@ -2727,15 +2564,6 @@ name = "itertools"
 version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
-dependencies = [
- "either",
-]
-
-[[package]]
-name = "itertools"
-version = "0.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
 dependencies = [
  "either",
 ]
@@ -3256,7 +3084,7 @@ version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af1844ef2428cc3e1cb900be36181049ef3d3193c63e43026cfe202983b27a56"
 dependencies = [
- "proc-macro-crate 1.3.1",
+ "proc-macro-crate 3.2.0",
  "proc-macro2",
  "quote",
  "syn 2.0.90",
@@ -3650,9 +3478,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.92"
+version = "1.0.95"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37d3544b3f2748c54e147655edb5025752e2303145b5aefb3c3ea2c78b973bb0"
+checksum = "02b3e5e68a3a1a02aad3ec490a98007cbc13c37cbe84a3cd7b8e406d76e7f778"
 dependencies = [
  "unicode-ident",
 ]
@@ -3668,9 +3496,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.37"
+version = "1.0.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5b9d34b8991d19d98081b46eacdd8eb58c6f2b201139f7c5f643cc155a633af"
+checksum = "1885c039570dc00dcb4ff087a89e185fd56bae234ddc7f056a945bf36467248d"
 dependencies = [
  "proc-macro2",
 ]
@@ -3900,17 +3728,17 @@ dependencies = [
 [[package]]
 name = "ring"
 version = "0.1.0"
-source = "git+https://github.com/w3f/ring-proof#51c5ad35dffa3f1c990a3003637b388a8d27414d"
+source = "git+https://www.github.com/w3f/ring-proof?rev=b273d33f9981e2bb3375ab45faeb537f7ee35224#b273d33f9981e2bb3375ab45faeb537f7ee35224"
 dependencies = [
- "ark-ec 0.5.0",
- "ark-ff 0.5.0",
- "ark-poly 0.5.0",
- "ark-serialize 0.5.0",
- "ark-std 0.5.0",
- "ark-transcript 0.0.3",
+ "ark-ec",
+ "ark-ff",
+ "ark-poly",
+ "ark-serialize",
+ "ark-std",
  "blake2",
  "common",
  "fflonk",
+ "merlin",
 ]
 
 [[package]]
@@ -4317,9 +4145,9 @@ checksum = "61697e0a1c7e512e84a621326239844a24d8207b4669b41bc18b32ea5cbf988b"
 
 [[package]]
 name = "serde"
-version = "1.0.214"
+version = "1.0.219"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f55c3193aca71c12ad7890f1785d2b73e1b9f63a0bbc353c08ef26fe03fc56b5"
+checksum = "5f0e2c6ed6606019b4e29e69dbaba95b11854410e5347d525002456dbbb786b6"
 dependencies = [
  "serde_derive",
 ]
@@ -4335,9 +4163,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.214"
+version = "1.0.219"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de523f781f095e28fa605cdce0f8307e451cc0fd14e2eb4cd2e98a355b147766"
+checksum = "5b0276cf7f2c73365f7157c8123c21cd9a50fbbd844757af28ca1f5925fc2a00"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4543,7 +4371,7 @@ dependencies = [
 [[package]]
 name = "sp-api"
 version = "4.0.0-dev"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "hash-db 0.16.0",
  "log",
@@ -4564,7 +4392,7 @@ dependencies = [
 [[package]]
 name = "sp-api-proc-macro"
 version = "4.0.0-dev"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "Inflector",
  "blake2",
@@ -4578,7 +4406,7 @@ dependencies = [
 [[package]]
 name = "sp-application-crypto"
 version = "23.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "parity-scale-codec",
  "scale-info",
@@ -4591,7 +4419,7 @@ dependencies = [
 [[package]]
 name = "sp-arithmetic"
 version = "16.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "integer-sqrt",
  "num-traits",
@@ -4605,7 +4433,7 @@ dependencies = [
 [[package]]
 name = "sp-ark-bls12-381"
 version = "0.4.2"
-source = "git+https://github.com/paritytech/arkworks-substrate#caa2eed74beb885dd07c7db5f916f2281dad818f"
+source = "git+https://github.com/paritytech/arkworks-substrate#f08093a5f7c32778eae1295430ec064dccd062a6"
 dependencies = [
  "ark-bls12-381-ext",
  "sp-crypto-ec-utils",
@@ -4614,7 +4442,7 @@ dependencies = [
 [[package]]
 name = "sp-ark-ed-on-bls12-381-bandersnatch"
 version = "0.4.2"
-source = "git+https://github.com/paritytech/arkworks-substrate#caa2eed74beb885dd07c7db5f916f2281dad818f"
+source = "git+https://github.com/paritytech/arkworks-substrate#f08093a5f7c32778eae1295430ec064dccd062a6"
 dependencies = [
  "ark-ed-on-bls12-381-bandersnatch-ext",
  "sp-crypto-ec-utils",
@@ -4623,7 +4451,7 @@ dependencies = [
 [[package]]
 name = "sp-core"
 version = "21.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "array-bytes",
  "bandersnatch_vrfs",
@@ -4638,7 +4466,7 @@ dependencies = [
  "hash-db 0.16.0",
  "hash256-std-hasher",
  "impl-serde 0.4.0",
- "itertools 0.10.5",
+ "itertools",
  "libsecp256k1 0.7.1",
  "log",
  "merlin",
@@ -4669,7 +4497,7 @@ dependencies = [
 [[package]]
 name = "sp-core-hashing"
 version = "9.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "blake2b_simd",
  "byteorder",
@@ -4682,7 +4510,7 @@ dependencies = [
 [[package]]
 name = "sp-core-hashing-proc-macro"
 version = "9.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "quote",
  "sp-core-hashing",
@@ -4692,7 +4520,7 @@ dependencies = [
 [[package]]
 name = "sp-crypto-ec-utils"
 version = "0.10.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#41a5d8ec5f3d3d0ff82899be66113b223395ade5"
+source = "git+https://github.com/paritytech/polkadot-sdk#0ae5c5bbd96a600aed81358339be2f16bade4a81"
 dependencies = [
  "ark-bls12-377",
  "ark-bls12-377-ext",
@@ -4700,7 +4528,7 @@ dependencies = [
  "ark-bls12-381-ext",
  "ark-bw6-761",
  "ark-bw6-761-ext",
- "ark-ec 0.4.2",
+ "ark-ec",
  "ark-ed-on-bls12-377",
  "ark-ed-on-bls12-377-ext",
  "ark-ed-on-bls12-381-bandersnatch",
@@ -4712,7 +4540,7 @@ dependencies = [
 [[package]]
 name = "sp-debug-derive"
 version = "8.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4722,7 +4550,7 @@ dependencies = [
 [[package]]
 name = "sp-debug-derive"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#41a5d8ec5f3d3d0ff82899be66113b223395ade5"
+source = "git+https://www.github.com/paritytech/polkadot-sdk?rev=edf79aa972bcf2e043e18065a9bb860ecdbd1a6e#edf79aa972bcf2e043e18065a9bb860ecdbd1a6e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4732,7 +4560,7 @@ dependencies = [
 [[package]]
 name = "sp-externalities"
 version = "0.19.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "environmental",
  "parity-scale-codec",
@@ -4743,7 +4571,7 @@ dependencies = [
 [[package]]
 name = "sp-externalities"
 version = "0.25.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#41a5d8ec5f3d3d0ff82899be66113b223395ade5"
+source = "git+https://www.github.com/paritytech/polkadot-sdk?rev=edf79aa972bcf2e043e18065a9bb860ecdbd1a6e#edf79aa972bcf2e043e18065a9bb860ecdbd1a6e"
 dependencies = [
  "environmental",
  "parity-scale-codec",
@@ -4753,7 +4581,7 @@ dependencies = [
 [[package]]
 name = "sp-genesis-builder"
 version = "0.1.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "serde_json",
  "sp-api",
@@ -4764,7 +4592,7 @@ dependencies = [
 [[package]]
 name = "sp-inherents"
 version = "4.0.0-dev"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "async-trait",
  "impl-trait-for-tuples",
@@ -4778,7 +4606,7 @@ dependencies = [
 [[package]]
 name = "sp-io"
 version = "23.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "bytes",
  "ed25519-dalek",
@@ -4800,9 +4628,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "sp-keyring"
+version = "24.0.0"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
+dependencies = [
+ "sp-core",
+ "sp-runtime",
+ "strum",
+]
+
+[[package]]
 name = "sp-keystore"
 version = "0.27.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "parity-scale-codec",
  "parking_lot",
@@ -4814,7 +4652,7 @@ dependencies = [
 [[package]]
 name = "sp-metadata-ir"
 version = "0.1.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "frame-metadata 16.0.0",
  "parity-scale-codec",
@@ -4825,7 +4663,7 @@ dependencies = [
 [[package]]
 name = "sp-panic-handler"
 version = "8.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "backtrace",
  "lazy_static",
@@ -4835,7 +4673,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime"
 version = "24.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "docify",
  "either",
@@ -4859,7 +4697,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface"
 version = "17.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "bytes",
  "impl-trait-for-tuples",
@@ -4877,7 +4715,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface"
 version = "24.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#41a5d8ec5f3d3d0ff82899be66113b223395ade5"
+source = "git+https://www.github.com/paritytech/polkadot-sdk?rev=edf79aa972bcf2e043e18065a9bb860ecdbd1a6e#edf79aa972bcf2e043e18065a9bb860ecdbd1a6e"
 dependencies = [
  "bytes",
  "impl-trait-for-tuples",
@@ -4896,7 +4734,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface-proc-macro"
 version = "11.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "Inflector",
  "expander",
@@ -4909,7 +4747,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface-proc-macro"
 version = "17.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#41a5d8ec5f3d3d0ff82899be66113b223395ade5"
+source = "git+https://www.github.com/paritytech/polkadot-sdk?rev=edf79aa972bcf2e043e18065a9bb860ecdbd1a6e#edf79aa972bcf2e043e18065a9bb860ecdbd1a6e"
 dependencies = [
  "Inflector",
  "expander",
@@ -4922,7 +4760,7 @@ dependencies = [
 [[package]]
 name = "sp-staking"
 version = "4.0.0-dev"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "impl-trait-for-tuples",
  "parity-scale-codec",
@@ -4936,7 +4774,7 @@ dependencies = [
 [[package]]
 name = "sp-state-machine"
 version = "0.28.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "hash-db 0.16.0",
  "log",
@@ -4957,17 +4795,17 @@ dependencies = [
 [[package]]
 name = "sp-std"
 version = "8.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 
 [[package]]
 name = "sp-std"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#41a5d8ec5f3d3d0ff82899be66113b223395ade5"
+source = "git+https://www.github.com/paritytech/polkadot-sdk?rev=edf79aa972bcf2e043e18065a9bb860ecdbd1a6e#edf79aa972bcf2e043e18065a9bb860ecdbd1a6e"
 
 [[package]]
 name = "sp-storage"
 version = "13.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "impl-serde 0.4.0",
  "parity-scale-codec",
@@ -4980,7 +4818,7 @@ dependencies = [
 [[package]]
 name = "sp-storage"
 version = "19.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#41a5d8ec5f3d3d0ff82899be66113b223395ade5"
+source = "git+https://www.github.com/paritytech/polkadot-sdk?rev=edf79aa972bcf2e043e18065a9bb860ecdbd1a6e#edf79aa972bcf2e043e18065a9bb860ecdbd1a6e"
 dependencies = [
  "impl-serde 0.5.0",
  "parity-scale-codec",
@@ -4992,7 +4830,7 @@ dependencies = [
 [[package]]
 name = "sp-tracing"
 version = "10.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "parity-scale-codec",
  "sp-std 8.0.0",
@@ -5004,7 +4842,7 @@ dependencies = [
 [[package]]
 name = "sp-tracing"
 version = "16.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#41a5d8ec5f3d3d0ff82899be66113b223395ade5"
+source = "git+https://www.github.com/paritytech/polkadot-sdk?rev=edf79aa972bcf2e043e18065a9bb860ecdbd1a6e#edf79aa972bcf2e043e18065a9bb860ecdbd1a6e"
 dependencies = [
  "parity-scale-codec",
  "tracing",
@@ -5015,7 +4853,7 @@ dependencies = [
 [[package]]
 name = "sp-trie"
 version = "22.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "ahash 0.8.11",
  "hash-db 0.16.0",
@@ -5039,7 +4877,7 @@ dependencies = [
 [[package]]
 name = "sp-version"
 version = "22.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "impl-serde 0.4.0",
  "parity-scale-codec",
@@ -5056,7 +4894,7 @@ dependencies = [
 [[package]]
 name = "sp-version-proc-macro"
 version = "8.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "parity-scale-codec",
  "proc-macro2",
@@ -5067,7 +4905,7 @@ dependencies = [
 [[package]]
 name = "sp-wasm-interface"
 version = "14.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "anyhow",
  "impl-trait-for-tuples",
@@ -5080,7 +4918,7 @@ dependencies = [
 [[package]]
 name = "sp-wasm-interface"
 version = "20.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#41a5d8ec5f3d3d0ff82899be66113b223395ade5"
+source = "git+https://www.github.com/paritytech/polkadot-sdk?rev=edf79aa972bcf2e043e18065a9bb860ecdbd1a6e#edf79aa972bcf2e043e18065a9bb860ecdbd1a6e"
 dependencies = [
  "anyhow",
  "impl-trait-for-tuples",
@@ -5091,7 +4929,7 @@ dependencies = [
 [[package]]
 name = "sp-weights"
 version = "20.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "bounded-collections",
  "parity-scale-codec",
@@ -5143,7 +4981,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 [[package]]
 name = "staging-xcm"
 version = "1.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "array-bytes",
  "bounded-collections",
@@ -5175,6 +5013,28 @@ name = "strsim"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
+
+[[package]]
+name = "strum"
+version = "0.24.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "063e6045c0e62079840579a7e47a355ae92f60eb74daaf156fb1e84ba164e63f"
+dependencies = [
+ "strum_macros",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.24.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e385be0d24f186b4ce2f9982191e7101bb737312ad61c1f2f984f34bcf85d59"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "rustversion",
+ "syn 1.0.109",
+]
 
 [[package]]
 name = "substrate-bip39"
@@ -5512,7 +5372,7 @@ version = "0.19.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b5bb770da30e5cbfde35a2d7b9b8a2c4b8ef89548a7a6aeab5c9a576e3e7421"
 dependencies = [
- "indexmap 2.6.0",
+ "indexmap 2.11.3",
  "toml_datetime",
  "winnow 0.5.40",
 ]
@@ -5523,7 +5383,7 @@ version = "0.22.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ae48d6208a266e853d946088ed816055e556cc6028c5e8e2b84d9fa5dd7c7f5"
 dependencies = [
- "indexmap 2.6.0",
+ "indexmap 2.11.3",
  "serde",
  "serde_spanned",
  "toml_datetime",
@@ -5792,10 +5652,10 @@ checksum = "6a48c48447120a85b0bdb897ba9426a7aa15b4229498a2e19103e8c9368dd4b2"
 dependencies = [
  "ark-bls12-377",
  "ark-bls12-381",
- "ark-ec 0.4.2",
- "ark-ff 0.4.2",
- "ark-serialize 0.4.2",
- "ark-serialize-derive 0.4.2",
+ "ark-ec",
+ "ark-ff",
+ "ark-serialize",
+ "ark-serialize-derive",
  "arrayref",
  "constcat",
  "digest 0.10.7",
@@ -6362,7 +6222,7 @@ dependencies = [
 [[package]]
 name = "xcm-procedural"
 version = "1.0.0"
-source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#de1f908c1bd12f81845e33ddc3b389db2122ea7b"
+source = "git+https://github.com/boolnetwork/polkadot-sdk?branch=Bool_Polkadot#4cf9384f747d06fb2e630f165dbc7c2ddb16e354"
 dependencies = [
  "Inflector",
  "proc-macro2",

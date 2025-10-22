@@ -3,15 +3,30 @@ name = "bnk-pallets-api"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+path = "src/mth.rs"
+name = "mth"
+
+[[bin]]
+path = "src/bnk_app_node.rs"
+name = "bnk-app-node"
+
+[[bin]]
+path = "src/sign_transfer.rs"
+name = "sign-transfer"
+
 [dependencies]
+indexmap = "2.11.3"
 log = "0.4.14"
 anyhow = "1.0"
 sp-core = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
 sp-runtime = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
+sp-keyring = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
+sp-io = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
 subxt = { git = "https://github.com/boolnetwork/subxt.git", branch = "Bool_Polkadot" }
 bool-telemetry-client = { git = "https://github.com/boolnetwork/bool-telemetry-client", branch = "main", optional = true }
 codec = { package = "parity-scale-codec", version = "3.2.2", features = ["derive", "full"] }
-tokio = { version = "1.27.0", features = ["macros"] }
+tokio = { version = "1.27.0", features = ["macros", "rt-multi-thread"] }
 url = { version = "^2.2", features = ["serde"] }
 hex = "0.4.2"
 serde = { version = "1.0.195", default-features = false, features = ["alloc", "derive"] }
@@ -30,3 +45,13 @@ env_logger = "0.9"
 
 [features]
 telemetry = ["bool-telemetry-client"]
+
+[patch.crates-io]
+[patch.'https://github.com/w3f/fflonk']
+fflonk = { git = "https://www.github.com/w3f/fflonk", rev = "1e854f35e9a65d08b11a86291405cdc95baa0a35" }
+
+[patch.'https://github.com/w3f/ring-proof']
+ring = { git = "https://www.github.com/w3f/ring-proof", rev = "b273d33f9981e2bb3375ab45faeb537f7ee35224" }
+
+[patch.'https://github.com/paritytech/polkadot-sdk']
+sp-runtime-interface = { git = "https://www.github.com/paritytech/polkadot-sdk", rev = "edf79aa972bcf2e043e18065a9bb860ecdbd1a6e" }
