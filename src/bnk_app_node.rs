@@ -13,6 +13,9 @@ use subxt::{rpc_params, Config};
 use bnk_pallets_api::{BoolConfig, BoolSubClient};
 use bnk_pallets_api::bool::runtime_types::ethereum::transaction::{TransactionV2 as BTransaction, TransactionAction as BTransactionAction};
 use polkadot::runtime_types::ethereum::transaction::{TransactionV2 as Transaction, EIP1559Transaction, TransactionAction};
+use subxt::tx::{BoolSigner, SecretKey};
+use subxt::OnlineClient;
+use std::str::FromStr;
 
 pub async fn transact(
     client: &BoolSubClient,
@@ -118,12 +121,14 @@ async fn main() {
     }
     match args[1].as_str() {
         "storage_prefix" => storage_prefix(args),
-        // "transfer" => transfer(args).await,
+        "transfer" => transfer(args).await,
         "ethereum_transfer" => ethereum_transfer(args).await,
         "tree_speed" => test_tree_speed(args),
         _ => panic!("invalid mission"),
     }
 }
+
+
 
 fn storage_prefix(args: Vec<String>) {
     if args.len() < 4 {
@@ -312,6 +317,217 @@ async fn ethereum_transfer(args: Vec<String>) {
                 }
                 let time = start.elapsed().as_micros();
                 println!("alice{i} total tx: {} time: {time} micros, tps: {}", txs, txs as u128 * 1000_1000 / time);
+                txs
+            });
+            tasks.push(task);
+        }
+        let mut total = 0;
+        for task in tasks {
+            total += task.await.unwrap();
+        }
+        let time = total_start.read().await.unwrap().elapsed().as_micros();
+        println!("Total tx: {total} time: {time} micros, tps: {}", total as u128 * 1000_000 / time);
+        tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+    }
+}
+
+async fn transfer(args: Vec<String>) {
+    use rand::{thread_rng, Rng};
+
+
+    if args.len() < 4 {
+        panic!("invalid params");
+    }
+
+    let mut url = "ws://127.0.0.1:9944".to_string();
+
+    let mut rng = thread_rng();
+    if args[2].starts_with("ws://") || args[2].starts_with("wss://") {
+        url = args[2].parse().unwrap();
+    }
+    let threads: usize = args[3].parse().unwrap();
+    let thread_transaction: usize = args[4].parse().unwrap();
+    let mut submit_batch_size: usize = 1;
+    if args.len() >= 5 {
+        submit_batch_size = args[5].parse().unwrap();
+        submit_batch_size = submit_batch_size.max(1);
+    }
+    let mut loop_times = 1u8;
+    if args.len() >= 6 {
+        loop_times = args[6].parse().unwrap();
+    }
+
+    let mut final_dest = Vec::new();
+    for i in 0..threads {
+        let mut thread_dest = Vec::new();
+        for j in 0..thread_transaction {
+            let dest: BoolSigner<BoolConfig> = BoolSigner::new(SecretKey::random(&mut rng));
+            thread_dest.push(dest.clone());
+        }
+        final_dest.push(thread_dest);
+    }
+
+    let mut send_accs: Vec<BoolSigner<BoolConfig>> = vec![];
+    for i in 0..threads {
+        // let sk = [i as u8; 32];
+        let signer = BoolSigner::new(SecretKey::random(&mut rng));
+        send_accs.push(signer);
+        // send_accs.push(AccountKeyring::numeric(i));
+    }
+    // Create a new API client, configured to talk to Polkadot nodes.
+
+    let from = {
+        let sk = hex::decode("5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133").unwrap();
+        let signer = BoolSigner::new(SecretKey::parse_slice(&sk).unwrap());
+        signer
+    };
+    let client = BoolSubClient::new_from_signer(&url, Some(from.clone()), None, None).await.unwrap();
+
+    let mut account_nonce = client.client.read().await.tx().account_nonce(&AccountId20::from_str("0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac").unwrap()).await.unwrap();
+    let mut progresses = vec![];
+    for acc in &send_accs.clone() {
+        let dest = polkadot::runtime_types::fp_account::AccountId20 { 0: acc.account_id().0 };
+
+        let balance_transfer_tx = polkadot::tx().balances().transfer_allow_death(dest.clone().into(), 10_000_000_000_000);
+
+        let progress = client.client.read().await.tx().create_signed_with_nonce(&balance_transfer_tx, &from, account_nonce, Default::default())
+            .unwrap()
+            .submit_and_watch()
+            .await
+            .unwrap();
+        account_nonce += 1;
+        progresses.push(progress);
+        if progresses.len() == 1000 {
+            for progress in std::mem::take(&mut progresses) {
+                let _hash = progress.wait_for_in_block().await.unwrap().extrinsic_hash();
+                // println!("Alice transfer to {dest:?} hash {hash:?}");
+            }
+        }
+    }
+    for progress in progresses {
+        let hash = progress.wait_for_in_block().await.unwrap().extrinsic_hash();
+        println!("Alice transfer hash {hash:?}");
+    }
+    for i in 1..=loop_times {
+        println!("start round{i}");
+        let mut tasks: Vec<tokio::task::JoinHandle<usize>> = vec![];
+        let total_start = std::sync::Arc::new(tokio::sync::RwLock::new(None));
+        let prepare_count = std::sync::Arc::new(tokio::sync::RwLock::new(0usize));
+        for i in 0..threads {
+            let total_start_i = total_start.clone();
+            let prepare_count_i = prepare_count.clone();
+            let from = send_accs[i].clone();
+            let threads_dest = final_dest[i].clone();
+            let url = url.clone();
+            let task = tokio::spawn(async move {
+                let from_acc = polkadot::runtime_types::fp_account::AccountId20 { 0: from.account_id().0 };
+                let client = BoolSubClient::new_from_signer(&url, Some(from.clone()), None, None).await.unwrap();
+                // let api = OnlineClient::<BoolConfig>::from_url(&url).await.unwrap();
+                let storage_query = polkadot::storage().system().account(from_acc);
+                let result = client
+                    .client
+                    .read()
+                    .await
+                    .storage()
+                    .at_latest()
+                    .await
+                    .unwrap()
+                    .fetch(&storage_query)
+                    .await
+                    .unwrap();
+
+                println!("Alice{i} adress {} has free balance: {}", from.account_id(), result.unwrap().data.free);
+                let mut account_nonce = client
+                    .client
+                    .read()
+                    .await
+                    .tx()
+                    .account_nonce(&from.account_id())
+                    .await
+                    .unwrap();
+                let prepare_start = std::time::Instant::now();
+                let mut transactions = Vec::new();
+                for t in 0..thread_transaction {
+                    // Submit the balance transfer extrinsic from Alice, and wait for it to be successful
+                    // and in a finalized block. We get back the extrinsic events if all is well.
+
+                    let dest = threads_dest[t].clone();
+                    // let dest: BoolSigner<BoolConfig> = BoolSigner::new(SecretKey::random(&mut rng));
+                    let dest = polkadot::runtime_types::fp_account::AccountId20 { 0: dest.account_id().0 };
+
+                    // let dest = AccountId32::from(AccountKeyring::numeric(i * 10000  + 100000 + t).public());
+                    let balance_transfer_tx = polkadot::tx().balances().transfer_allow_death(dest.into(), 10_000);
+                    let tx = client
+                        .client
+                        .read()
+                        .await
+                        .tx()
+                        .create_signed_with_nonce(&balance_transfer_tx, &from.clone(), account_nonce, Default::default())
+                        .unwrap();
+                    account_nonce += 1;
+
+                    transactions.push((t, tx, account_nonce - 1));
+                }
+                println!("Alice{i} prepare {thread_transaction} transactions in {} micros", prepare_start.elapsed().as_micros());
+                *prepare_count_i.write().await += 1;
+                loop {
+                    if *prepare_count_i.read().await == threads {
+                        break;
+                    }
+                    tokio::time::sleep(std::time::Duration::from_micros(10)).await;
+                }
+                let mut total_start_i = total_start_i.write().await;
+                if total_start_i.is_none() {
+                    *total_start_i = Some(std::time::Instant::now());
+                }
+                drop(total_start_i);
+                let start = std::time::Instant::now();
+                let mut txs = thread_transaction;
+                if submit_batch_size == 1 {
+                    for (tx_i, transactions, nonce) in transactions {
+                        let tx_number = tx_i + 1;
+                        if let Err(e) = transactions.submit().await {
+                            txs = tx_number;
+                            println!("alice{i} nonce: {nonce} Error: {e:?}");
+                            break;
+                        }
+                        if tx_number % 100 == 0 {
+                            println!("alice{i} tx: {tx_number}, tps: {}", (tx_number) as u128 * 1000 / start.elapsed().as_millis());
+                        }
+                    }
+                } else {
+                    for (chunk_i, chunk) in transactions.chunks(submit_batch_size).enumerate() {
+                        let mut tx_number = 0;
+                        let mut nonce = 0;
+                        let calls: Vec<_> = chunk
+                            .iter()
+                            .map(|(tx_i, transaction, n)| {
+                                tx_number = tx_i + 1;
+                                nonce = *n;
+                                transaction.encoded().to_vec()
+                            })
+                            .collect::<Vec<_>>()
+                            .concat();
+                        let mut encoded_txs = Vec::new();
+                        Compact(chunk.len() as u32).encode_to(&mut encoded_txs);
+                        encoded_txs.extend(calls);
+                        let bytes: types::Bytes = encoded_txs.into();
+                        let params = rpc_params![bytes];
+                        if let Err(e) = client
+                            .client
+                            .read()
+                            .await.rpc().request::<Vec<<BoolConfig as Config>::Hash>>("author_submitExtrinsics", params).await {
+                            println!("alice{i} nonce: {nonce} chunk: {chunk_i} Error: {e:?}");
+                            break;
+                        } else {
+                            txs += chunk.len();
+                        }
+                        let time = start.elapsed().as_micros();
+                        println!("alice{i} chunk: {chunk_i} tx: {tx_number} time: {time} micros, tps: {}", (tx_number) as u128 * 1000_000 / time);
+                    }
+                }
+                let time = start.elapsed().as_micros();
+                println!("alice{i} tx: {} time: {time} micros, tps: {} ", i + 1, txs as u128 * 1000_000 / time);
                 txs
             });
             tasks.push(task);
