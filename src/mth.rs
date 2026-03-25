@@ -1,14 +1,32 @@
-#[subxt::subxt(runtime_metadata_path = "./metadata-new.scale")]
+// #[subxt::subxt(runtime_metadata_path = "./metadata-new.scale")]
+// #[subxt::subxt(runtime_metadata_path = "./metadata-ident-system.scale")]
+#[subxt::subxt(runtime_metadata_path = "./metadata-global-typed.scale")]
 pub mod polkadot {}
 
 use sp_keyring::AccountKeyring;
-use subxt::{rpc_params, tx::PairSigner, Config, OnlineClient, PolkadotConfig};
-use subxt::utils::AccountId32;
+use subxt::{rpc_params, tx::PairSigner, Config, OnlineClient};
+use subxt::utils::{AccountId32, MultiAddress, MultiSignature};
+use subxt::config::substrate::{BlakeTwo256, SubstrateHeader};
+use subxt::config::polkadot::PolkadotExtrinsicParams;
 use sp_core::Pair;
 use std::env;
 use codec::{Compact, Encode};
 use subxt::rpc::types;
 use bnk_pallets_api::BoolConfig;
+use sp_core::H256;
+
+pub enum PolkadotConfig {}
+
+impl Config for PolkadotConfig {
+    type Index = u64;
+    type Hash = H256;
+    type AccountId = AccountId32;
+    type Address = MultiAddress<Self::AccountId, ()>;
+    type Signature = MultiSignature;
+    type Hasher = BlakeTwo256;
+    type Header = SubstrateHeader<u32, BlakeTwo256>;
+    type ExtrinsicParams = PolkadotExtrinsicParams<Self>;
+}
 
 #[tokio::main]
 async fn main() {
@@ -53,7 +71,7 @@ async fn transfer(args: Vec<String>) {
     if args.len() >= 6 {
         loop_times = args[5].parse().unwrap();
     }
-
+    println!("threads {threads} submit_batch_size {submit_batch_size} loop_times {loop_times}");
     let mut send_accs: Vec<sp_core::sr25519::Pair> = vec![];
     for i in 0..threads {
         send_accs.push(AccountKeyring::numeric(i));
@@ -62,51 +80,84 @@ async fn transfer(args: Vec<String>) {
     let api = OnlineClient::<PolkadotConfig>::new().await.unwrap();
     let from = PairSigner::new(AccountKeyring::Alice.pair());
     let mut account_nonce = api.tx().account_nonce(&AccountId32::from(AccountKeyring::Alice.pair().public())).await.unwrap();
-    let mut progresses = vec![];
+    // let mut progresses = vec![];
     for acc in &send_accs.clone() {
         let dest: AccountId32 = AccountId32::from(acc.public());
+        let account_activate_tx = polkadot::tx().quota().activate_account(dest.clone().into());
+        let tx1 = api.tx().create_signed_with_nonce(
+            &account_activate_tx,
+            &from,
+            account_nonce,
+            Default::default(),
+        )
+            .unwrap();
+        let tx1_start = std::time::Instant::now();
+        let _ = tx1.submit_and_watch()
+            .await
+            .unwrap();
+            // .wait_for_in_block()
+            // .await
+            // .unwrap();
+        println!("Alice try activate address {dest} delay {:?}", tx1_start.elapsed());
+        account_nonce += 1;
         let balance_transfer_tx = polkadot::tx().balances().transfer(dest.clone().into(), 10_000_000_000_000);
-        let progress = api.tx().create_signed_with_nonce(&balance_transfer_tx, &from, account_nonce, Default::default())
+        let _ = api.tx().create_signed_with_nonce(
+            &balance_transfer_tx,
+            &from,
+            account_nonce,
+            Default::default(),
+        )
             .unwrap()
             .submit_and_watch()
             .await
             .unwrap();
+            // .wait_for_in_block()
+            // .await
+            // .unwrap();
+        println!("Alice try transfer to address {dest}");
         account_nonce += 1;
-        progresses.push(progress);
-        if progresses.len() == 1000 {
-            for progress in std::mem::take(&mut progresses) {
-                let _hash = progress.wait_for_in_block().await.unwrap().extrinsic_hash();
-                // println!("Alice transfer to {dest:?} hash {hash:?}");
-            }
-        }
+        // progresses.push(progress);
     }
-    for progress in progresses {
-        let hash = progress.wait_for_in_block().await.unwrap().extrinsic_hash();
-        println!("Alice transfer hash {hash:?}");
-    }
-    for i in 1..=loop_times {
-        println!("start round{i}");
-        let mut tasks: Vec<tokio::task::JoinHandle<usize>> = vec![];
-        let total_start = std::sync::Arc::new(tokio::sync::RwLock::new(None));
-        let prepare_count = std::sync::Arc::new(tokio::sync::RwLock::new(0usize));
-        for i in 0..threads {
-            let total_start_i = total_start.clone();
-            let prepare_count_i = prepare_count.clone();
-            let from = send_accs[i].clone();
-            let task = tokio::spawn(async move {
-                let api = OnlineClient::<PolkadotConfig>::new().await.unwrap();
-                let storage_query = polkadot::storage().system().account(&AccountId32::from(from.public()));
-                let result = api
+    let mut tasks: Vec<tokio::task::JoinHandle<Vec<(usize, u128)>>> = vec![];
+    let total_start = std::sync::Arc::new(tokio::sync::RwLock::new(None));
+    let prepare_count = std::sync::Arc::new(tokio::sync::RwLock::new(0usize));
+    for i in 0..threads {
+        let total_start_i = total_start.clone();
+        let prepare_count_i = prepare_count.clone();
+        let from = send_accs[i].clone();
+        let task = tokio::spawn(async move {
+            let api = OnlineClient::<PolkadotConfig>::new().await.unwrap();
+            let storage_query = polkadot::storage().system().account(&AccountId32::from(from.public()));
+            loop {
+                if let Some(account_info) = api
                     .storage()
                     .at_latest()
                     .await
                     .unwrap()
                     .fetch(&storage_query)
                     .await
-                    .unwrap();
-
-                println!("Alice{i} adress {} has free balance: {}", AccountId32::from(from.public()), result.unwrap().data.free);
-                let mut account_nonce = api.tx().account_nonce(&AccountId32::from(from.public())).await.unwrap();
+                    .unwrap()
+                {
+                    if account_info.data.free > 0 {
+                        if account_info.quota == u32::MAX {
+                            panic!("Alice{i} address {} is frozen", AccountId32::from(from.public()));
+                        } else if account_info.quota >= 1 + thread_transaction as u32 * loop_times as u32 {
+                            println!("Alice{i} address {} has quota: {} balance: {}", AccountId32::from(from.public()), account_info.quota, account_info.data.free);
+                            break;
+                        } else {
+                            panic!("Alice{i} address {} has quota: {} not enough for {} transaction", AccountId32::from(from.public()), account_info.quota, thread_transaction * loop_times as usize);
+                        }
+                        // println!("Alice{i} address {} has balance: {}", AccountId32::from(from.public()), account_info.data.free);
+                        // break;
+                    }
+                } else {
+                    tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+                }
+            }
+            let mut account_nonce = api.tx().account_nonce(&AccountId32::from(from.public())).await.unwrap();
+            let mut round_txs: Vec<_> = Vec::new();
+            for round in 1..=loop_times {
+                println!("Alice{i} start round {round}");
                 let prepare_start = std::time::Instant::now();
                 let transactions: Vec<_> = (0..thread_transaction).map(|t| {
                     // Submit the balance transfer extrinsic from Alice, and wait for it to be successful
@@ -115,7 +166,13 @@ async fn transfer(args: Vec<String>) {
                     let balance_transfer_tx = polkadot::tx().balances().transfer(dest.into(), 10_000);
                     let tx = api
                         .tx()
-                        .create_signed_with_nonce(&balance_transfer_tx, &PairSigner::new(from.clone()), account_nonce, Default::default())
+                        .create_signed_with_nonce(
+                            &balance_transfer_tx,
+                            &PairSigner::new(from.clone()),
+                            // sp_timestamp::Timestamp::current().as_millis(),
+                            account_nonce,
+                            Default::default(),
+                        )
                         .unwrap();
                     account_nonce += 1;
                     (t, tx, account_nonce - 1)
@@ -124,7 +181,7 @@ async fn transfer(args: Vec<String>) {
                 println!("Alice{i} prepare {thread_transaction} transactions in {} micros", prepare_start.elapsed().as_micros());
                 *prepare_count_i.write().await += 1;
                 loop {
-                    if *prepare_count_i.read().await == threads {
+                    if *prepare_count_i.write().await % threads == 0 {
                         break;
                     }
                     tokio::time::sleep(std::time::Duration::from_micros(10)).await;
@@ -166,28 +223,40 @@ async fn transfer(args: Vec<String>) {
                         encoded_txs.extend(calls);
                         let bytes: types::Bytes = encoded_txs.into();
                         let params = rpc_params![bytes];
-                        if let Err(e) = api.rpc().request::<Vec<<BoolConfig as Config>::Hash>>("author_submitExtrinsics", params).await {
-                            println!("alice{i} nonce: {nonce} chunk: {chunk_i} Error: {e:?}");
-                            break;
-                        } else {
-                            txs += chunk.len();
+                        match api.rpc().request::<Vec<Result<<BoolConfig as Config>::Hash, String>>>("author_submitExtrinsics", params).await {
+                            Err(e) => {
+                                println!("alice{i} nonce: {nonce} chunk: {chunk_i} Error: {e:?}");
+                                break;
+                            }
+                            Ok(results) => for (tx_i, result) in results.into_iter().enumerate() {
+                                match result {
+                                    Ok(_) => txs += 1,
+                                    Err(e) => {
+                                        println!("alice{i} nonce: {nonce} chunk: {chunk_i} tx: {tx_i} Error: {e:?}");
+                                    }
+                                }
+                            }
                         }
                         let time = start.elapsed().as_micros();
-                        println!("alice{i} chunk: {chunk_i} tx: {tx_number} time: {time} micros, tps: {}", (tx_number) as u128 * 1000_000 / time);
+                        println!("alice{i} chunk: {chunk_i} tx: {tx_number} time: {time} micros, tps: {}", tx_number as u128 * 1000_000 / time);
                     }
                 }
                 let time = start.elapsed().as_micros();
                 println!("alice{i} tx: {} time: {time} micros, tps: {} ", i + 1, txs as u128 * 1000_000 / time);
-                txs
-            });
-            tasks.push(task);
-        }
-        let mut total = 0;
-        for task in tasks {
-            total += task.await.unwrap();
-        }
-        let time = total_start.read().await.unwrap().elapsed().as_micros();
-        println!("Total tx: {total} time: {time} micros, tps: {}", total as u128 * 1000_000 / time);
-        tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+                round_txs.push((txs, time));
+                tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+            }
+            round_txs
+        });
+        tasks.push(task);
+    }
+    let mut thread_rounds = vec![];
+    for task in tasks {
+        thread_rounds.push(task.await.unwrap());
+    }
+    for round in 0..loop_times as usize {
+        let total = thread_rounds.iter().map(|r| r[round].0).sum::<usize>();
+        let time = thread_rounds.iter().map(|r| r[round].1).max().unwrap();
+        println!("Round {} total tx: {total} time: {time} micros, tps: {}", round + 1, total as u128 * 1000_000 / time);
     }
 }

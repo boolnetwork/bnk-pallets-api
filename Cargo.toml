@@ -21,6 +21,7 @@ log = "0.4.14"
 anyhow = "1.0"
 sp-core = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
 sp-runtime = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
+sp-timestamp = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
 sp-keyring = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
 sp-io = { git = "https://github.com/boolnetwork/polkadot-sdk", branch = "Bool_Polkadot" }
 subxt = { git = "https://github.com/boolnetwork/subxt.git", branch = "Bool_Polkadot" }
